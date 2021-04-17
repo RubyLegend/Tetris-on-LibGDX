@@ -19,15 +19,16 @@ public class GameScreen implements Screen{
 	Music music;
 	Texture background, mesh, projection, blue, yellow, orange, red, cyan, purple, green;
 	//Rectangle a, b, c, d;
-	Figure a;
-	public int color;
+	Figure a, holding, next1, next2, next3, next4;
+	//public int color;
 	private long lastClickTime = 0, dropTime = 0;
 	OrthographicCamera camera;
 	//private BitmapFont font;
+	private boolean block_hold = false;
 	private int score = 0;
 	private int lines = 0;
-	private String currBlock, hold;
-	private String [] nextBlocks = new String[4];
+	//private String currBlock, hold;
+	//private String [] nextBlocks = new String[4];
 	//Settings for the game
 	static public int WIDTH = Settings.WIDTH; //Width of a block
 	static public int ROWS = Settings.ROWS; //Number of rows
@@ -37,7 +38,7 @@ public class GameScreen implements Screen{
 	//------------------------
 	static public int YMAX = YMIN + (ROWS-1)*WIDTH;
 	static public int XMAX = XMIN + (COLS-1)*WIDTH;
-	private int SCOREPOS = XMAX + 100;
+	private int SCOREPOSX = XMAX + 100, HOLDPOSX = XMIN - 200, nextblockposY;
 	static public int [][] Mesh = new int[COLS][ROWS];
 	//Window settings
 	private int Wwidth = 1920;
@@ -51,12 +52,14 @@ public class GameScreen implements Screen{
 		music.setLooping(true);
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Wwidth, Wheight);
-		currBlock = GenerateBlock("none");
-		for(int i = 0; i < 4; i++) {
-			if(i==0)
-			nextBlocks[i] = GenerateBlock(currBlock);
-			else nextBlocks[i] = GenerateBlock(nextBlocks[i-1]);
-		}
+		//Generating blocks
+		holding = new Figure();
+		a = GenerateBlock("none", 1);
+		next1 = GenerateBlock(a.type, 0);
+		next2 = GenerateBlock(next1.type, 0);
+		next3 = GenerateBlock(next2.type, 0);
+		next4 = GenerateBlock(next3.type, 0);
+		//-----------------------------
 		background = new Texture("background.jpg");
 		mesh = new Texture("mesh.jpeg");
 		blue = new Texture("BLUE.jpeg");
@@ -67,33 +70,33 @@ public class GameScreen implements Screen{
 		purple = new Texture("PURPLE.jpeg");
 		orange = new Texture("ORANGE.jpeg");
 		projection = new Texture("projection.jpeg");
-		a = new Figure(currBlock, Mesh);
+		nextblockposY = Wheight - 300;
 	}	
 	
-	public String GenerateBlock(String prevBlock) {
+	public Figure GenerateBlock(String prevBlock, int draw) {
 		double gen = Math.random()*7;
 		if(gen <= 1 && prevBlock != "i") { //i
-			return "i";
+			return new Figure("i", Mesh, draw);
 		}
 		else if(gen <= 2 && prevBlock != "l") { //l
-			return "l";
+			return new Figure("l", Mesh, draw);
 		}
 		else if(gen <= 3 && prevBlock != "j") { //j
-			return "j";
+			return new Figure("j", Mesh, draw);
 		}
 		else if(gen <= 4 && prevBlock != "o") { //o
-			return "o";
+			return new Figure("o", Mesh, draw);
 		}
 		else if(gen <= 5 && prevBlock != "s") { //s
-			return "s";
+			return new Figure("s", Mesh, draw);
 		}
 		else if(gen <= 6 && prevBlock != "t") { //t
-			return "t";
+			return new Figure("t", Mesh, draw);
 		}
 		else if (gen < 7 && prevBlock != "z") { // gen < 140 //z
-			return "z";
+			return new Figure("z", Mesh, draw);
 		}
-		else return GenerateBlock(prevBlock);
+		else return GenerateBlock(prevBlock, draw);
 	}
 	
 	private boolean CheckLines() {
@@ -127,6 +130,21 @@ public class GameScreen implements Screen{
 		music.play();
 	}
 
+	private Texture getTexture(int color) {
+		Texture temp = blue;
+		switch(color) {
+		case 1: temp = blue; break;
+		case 2: temp = cyan; break;
+		case 3: temp = green; break;
+		case 4: temp = orange; break;
+		case 5: temp = purple; break;
+		case 6: temp = red; break;
+		case 7: temp = yellow; break;
+		case 10: temp = projection; break;
+		}
+		return temp;
+	}
+	
 	@Override
 	public void render(float delta) {
 		// tell the camera to update its matrices
@@ -174,10 +192,23 @@ public class GameScreen implements Screen{
 						break;
 				}
 			}
+			
 		}
-		game.font.draw(game.batch, "Score: " + score + "      type: " + a.type, SCOREPOS, Wheight-150);
-		game.font.draw(game.batch, "Next blocks: " + nextBlocks[0] + " " + nextBlocks[1]
-				       + " " + nextBlocks[2] + " " + nextBlocks[3] + "        a.x = " + a.a.getX() + " a.y = " + a.a.getY(), SCOREPOS, Wheight - 250);
+		if(holding.type != null) {
+			holding.setXY(HOLDPOSX, Wheight-250);
+			holding.Draw(game, WIDTH, getTexture(holding.color));
+		}
+		next1.setXY(SCOREPOSX, nextblockposY);
+		next1.Draw(game, WIDTH, getTexture(next1.color));
+		next2.setXY(SCOREPOSX, nextblockposY - 3*WIDTH);
+		next2.Draw(game, WIDTH, getTexture(next2.color));
+		next3.setXY(SCOREPOSX, nextblockposY - 6*WIDTH);
+		next3.Draw(game, WIDTH, getTexture(next3.color));
+		next4.setXY(SCOREPOSX, nextblockposY - 9*WIDTH);
+		next4.Draw(game, WIDTH, getTexture(next4.color));
+		game.font.draw(game.batch, "Holding block: ", HOLDPOSX, Wheight-150);
+		game.font.draw(game.batch, "Score: " + score + "      type: " + a.type, SCOREPOSX, Wheight-150);
+		game.font.draw(game.batch, "Next blocks: " + "            a.x = " + a.a.getX() + " a.y = " + a.a.getY(), SCOREPOSX, Wheight - 200);
 		game.batch.end();
 		
 		//--------------------------------------------
@@ -202,14 +233,39 @@ public class GameScreen implements Screen{
 		if(Gdx.input.isKeyJustPressed(Settings.RotRight)) {
 			a.test_rotation(false, Mesh);
 		}
+		if(Gdx.input.isKeyJustPressed(Settings.Hold) && !block_hold) {
+			block_hold = true;
+			String temp = holding.type;
+			holding.setFigure(a.type, Mesh, 0);
+			a.UnDraw(Mesh);
+			if(temp != null) {
+				a.setFigure(temp, Mesh, 1);
+			}
+			else {
+			a.setFigure(next1.type, Mesh, 1);
+			//currBlock = nextBlocks[0];
+			//for(int i = 0; i < 3; i++)
+			//	nextBlocks[i] = nextBlocks[i+1];
+			//nextBlocks[3] = GenerateBlock(nextBlocks[2]);
+			next1 = next2;
+			next2 = next3;
+			next3 = next4;
+			next4 = GenerateBlock(next3.type, 0);
+			}
+		}
 		if(TimeUtils.nanoTime() - dropTime > 700000000) {
 			if(a.bottom(Mesh)) { //Change figure, if I can`t move it to the bottom anymore or there is full lines
+				block_hold = false;
 				CheckLines();
-				a.setFigure(nextBlocks[0], Mesh);
-				currBlock = nextBlocks[0];
-				for(int i = 0; i < 3; i++)
-					nextBlocks[i] = nextBlocks[i+1];
-				nextBlocks[3] = GenerateBlock(nextBlocks[2]);
+				a.setFigure(next1.type, Mesh, 1);
+				//currBlock = nextBlocks[0];
+				//for(int i = 0; i < 3; i++)
+				//	nextBlocks[i] = nextBlocks[i+1];
+				//nextBlocks[3] = GenerateBlock(nextBlocks[2]);
+				next1 = next2;
+				next2 = next3;
+				next3 = next4;
+				next4 = GenerateBlock(next3.type, 0);
 				dropTime = TimeUtils.nanoTime();
 			}
 			else {

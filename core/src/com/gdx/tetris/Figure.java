@@ -1,5 +1,6 @@
 package com.gdx.tetris;
 
+import com.badlogic.gdx.graphics.Texture;
 //import com.badlogic.gdx.Gdx;
 //import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
@@ -21,7 +22,17 @@ public class Figure {
 	
 	//Colors and forms are taken from
 	//wiki: https://en.wikipedia.org/wiki/Tetromino
-	Figure(String type, int [][] MESH){
+	Figure() { //Defauld initializator
+		a = new Rectangle();
+		b = new Rectangle();
+		c = new Rectangle();
+		d = new Rectangle();
+		e = new Rectangle();
+		f = new Rectangle();
+		g = new Rectangle();
+		h = new Rectangle();
+	}
+	Figure(String type, int [][] MESH, int draw){
 		a = new Rectangle();
 		b = new Rectangle();
 		c = new Rectangle();
@@ -89,13 +100,12 @@ public class Figure {
 			break;
 		}
 		rot = 0;
-		Project(MESH);
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+		if(draw == 1) {
+			Project(MESH);
+			Draw(MESH);
+		}
 	}
-	public void setFigure(String type, int [][] MESH) {
+	public void setFigure(String type, int [][] MESH, int draw) {
 		e.x = 0;
 		this.type = type;
 		switch(type) {
@@ -156,17 +166,13 @@ public class Figure {
 			break;
 		}
 		rot = 0;
-		Project(MESH);
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+		if(draw == 1) {
+			Project(MESH);
+			Draw(MESH);
+		}
 	}
 	public void moveDown(int [][] MESH) {
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = 0;
+		UnDraw(MESH);
 		UnProject(MESH);
 		
 		if(	a.y != YMIN && b.y != YMIN && c.y != YMIN && d.y != YMIN 
@@ -183,16 +189,10 @@ public class Figure {
 		}
 		
 		Project(MESH);
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+		Draw(MESH);
 	}
 	public void moveLeft(int [][] MESH) {
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = 0;
+		UnDraw(MESH);
 		UnProject(MESH);
 		if(	a.x != XMIN && b.x != XMIN && c.x != XMIN && d.x != XMIN
 			&& MESH[(int) ((a.x-XMIN)/WIDTH)-1][(int) ((a.y-YMIN)/WIDTH)] == 0
@@ -207,16 +207,10 @@ public class Figure {
 			
 		}
 		Project(MESH);
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+		Draw(MESH);
 	}
 	public void moveRight(int [][] MESH) {
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = 0;
+		UnDraw(MESH);
 		UnProject(MESH);
 		if(	a.x != XMAX && b.x != XMAX && c.x != XMAX && d.x != XMAX 
 				&& MESH[(int) ((a.x-XMIN)/WIDTH)+1][(int) ((a.y-YMIN)/WIDTH)] == 0
@@ -231,16 +225,10 @@ public class Figure {
 			
 		}
 		Project(MESH);
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+		Draw(MESH);
 	}
 	public void Drop(int [][] MESH) {
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = 0;
+		UnDraw(MESH);
 		UnProject(MESH);
 		
 		float i,j,k,l;
@@ -259,34 +247,20 @@ public class Figure {
 				break;
 			}
 		}
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+		Draw(MESH);
 	}
 	public boolean overlaps(int [][] MESH) {
 		boolean answer = false;
-		//MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = 0;
-		//MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = 0;
-		//MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = 0;
-		//MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = 0;
 		if(MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] != 0 ||
 		   MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] != 0 ||
 		   MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] != 0 ||
 		   MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] != 0)
 			answer = true;
-		//MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-		//MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-		//MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-		//MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
 		return answer;
 	}
 	public boolean bottom(int [][] MESH) {
 		boolean answer = false;
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = 0;
+		UnDraw(MESH);
 		UnProject(MESH);
 		if(a.y == YMIN || MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)-1] != 0 ||
 		   b.y == YMIN || MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)-1] != 0 ||
@@ -294,10 +268,7 @@ public class Figure {
 		   d.y == YMIN || MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)-1] != 0)
 			answer = true;
 		Project(MESH);
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+		Draw(MESH);
 		return answer;
 	}
 	//test for SRS wall kick, if needed
@@ -535,10 +506,7 @@ public class Figure {
 	}
 	private boolean testLeft(int x, int y, int [][] MESH) {
 		//Removing block from mesh
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = 0;
+		UnDraw(MESH);
 		UnProject(MESH);
 		RotateLeft(MESH);
 		a.x+=x*WIDTH;   a.y+=y*WIDTH;
@@ -557,18 +525,12 @@ public class Figure {
 				RotateRight(MESH);
 				//Adding block back to mesh
 				Project(MESH);
-				MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-				MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-				MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-				MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+				Draw(MESH);
 				return false;
 			}
 			//Adding block back to mesh
 			Project(MESH);
-			MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-			MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-			MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-			MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+			Draw(MESH);
 			return true;
 		}
 		else {
@@ -579,19 +541,13 @@ public class Figure {
 			RotateRight(MESH);
 			//Adding block back to mesh
 			Project(MESH);
-			MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-			MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-			MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-			MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+			Draw(MESH);
 			return false;
 		}
 	}
 	private boolean testRight(int x, int y, int [][] MESH) {
 		//Removing block from mesh
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = 0;
+		UnDraw(MESH);
 		UnProject(MESH);
 		RotateRight(MESH);
 		a.x+=x*WIDTH;   a.y+=y*WIDTH;
@@ -610,18 +566,12 @@ public class Figure {
 				RotateLeft(MESH);
 				//Adding block back to mesh
 				Project(MESH);
-				MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-				MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-				MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-				MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+				Draw(MESH);
 				return false;
 			}
 			//Adding block back to mesh
 			Project(MESH);
-			MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-			MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-			MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-			MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+			Draw(MESH);
 			return true;
 		}
 		else {
@@ -632,10 +582,7 @@ public class Figure {
 			RotateLeft(MESH);
 			//Adding block back to mesh
 			Project(MESH);
-			MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-			MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-			MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-			MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+			Draw(MESH);
 			return false;
 		}
 	}
@@ -1123,6 +1070,27 @@ public class Figure {
 		}
 		
 	}
+	public void UnDraw(int [][] MESH) {
+		UnProject(MESH);
+		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = 0;
+		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = 0;
+		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = 0;
+		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = 0;
+	}
+	public void Draw(int [][] MESH) {
+		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
+		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
+		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
+		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+	}
+	public void Draw(final TetrisGDX game, int width, Texture texture) {
+		//game.batch.begin();
+		game.batch.draw(texture, a.x, a.y, width, width);
+		game.batch.draw(texture, b.x, b.y, width, width);
+		game.batch.draw(texture, c.x, c.y, width, width);
+		game.batch.draw(texture, d.x, d.y, width, width);
+		//game.batch.end();
+	}
 	public void UnProject(int [][] MESH) {
 		if(e.x != 0) {//If block is projected
 			//Unprojecting block
@@ -1162,6 +1130,57 @@ public class Figure {
 		MESH[(int) ((h.x-XMIN)/WIDTH)][(int) ((h.y-YMIN)/WIDTH)] = 10;
 		
 	}
-
+	public void setXY(int x, int y) {
+		switch(type) {
+		case "i": //++
+			a.x = x;
+			b.x = x+ WIDTH;
+			c.x = x + 2*WIDTH;
+			d.x = x + 3*WIDTH;
+			a.y = b.y = c.y = d.y = y;
+			break;
+		case "l": //++
+			a.x = x;
+			b.x = a.x + WIDTH;
+			c.x = d.x = b.x + WIDTH;
+			a.y = b.y = c.y = y - WIDTH;
+			d.y = a.y + WIDTH;
+			break;
+		case "j": //++
+			a.x = b.x = x;
+			a.y = y;
+			b.y = c.y = d.y = y - WIDTH;
+			c.x = x+WIDTH;
+			d.x = x+2*WIDTH;
+			break;
+		case "o": //++
+			a.x = c.x = x;
+			b.x = d.x = x+WIDTH;
+			a.y = b.y = y;
+			c.y = d.y = y - WIDTH;
+			break;
+		case "s": //++
+			b.x = c.x = x+WIDTH;
+			d.x = x + 2*WIDTH;
+			a.x = x;
+			a.y = b.y = y - WIDTH;
+			c.y = d.y = y;
+			break;
+		case "t": //++
+			a.y = b.y = c.y = y - WIDTH;
+			d.y = y;
+			a.x = x;
+			b.x = d.x = x+WIDTH;
+			c.x = x+2*WIDTH;
+			break;
+		case "z": //++
+			b.x = c.x = x+WIDTH;
+			a.x = x;
+			d.x = x+2*WIDTH;
+			a.y = b.y = y;
+			c.y = d.y = y - WIDTH;
+			break;
+		}
+	}
 
 }
