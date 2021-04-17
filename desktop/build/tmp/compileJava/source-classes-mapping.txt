@@ -1,0 +1,2 @@
+com/gdx/tetris/desktop/DesktopLauncher.java
+ com.gdx.tetris.desktop.DesktopLauncher
