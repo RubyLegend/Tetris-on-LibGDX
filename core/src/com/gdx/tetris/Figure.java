@@ -1101,6 +1101,7 @@ public class Figure {
 		}
 	}
 	public void Project(int [][] MESH) {
+		int r = MESH[0].length;
 		UnProject(MESH);
 		e.x = a.x;
 		f.x = b.x;

@@ -27,11 +27,12 @@ public class GameScreen implements Screen{
 	private boolean block_hold = false;
 	private int score = 0;
 	private int lines = 0;
+	int dropTimeSpeed = 700000000;
 	//private String currBlock, hold;
 	//private String [] nextBlocks = new String[4];
 	//Settings for the game
 	static public int WIDTH = Settings.WIDTH; //Width of a block
-	static public int ROWS = Settings.ROWS; //Number of rows
+	static public int ROWS = Settings.ROWS +2; //Number of rows
 	static public int COLS = Settings.COLS; //Number of cols
 	static public int XMIN = Settings.XMIN; //|Position
 	static public int YMIN = Settings.YMIN;  //|of map
@@ -127,7 +128,7 @@ public class GameScreen implements Screen{
 	public void show() {
 		// start the playback of the background music
 		// when the screen is shown
-		music.play();
+		//music.play();
 	}
 
 	private Texture getTexture(int color) {
@@ -160,8 +161,8 @@ public class GameScreen implements Screen{
 		game.batch.begin();
 		
 		game.batch.draw(background, 0, 0, Wwidth, Wheight);
-		for(int i = 0; i < COLS; i++) {
-			for(int j = 0; j < ROWS; j++) {
+		for(int i = 0; i < Mesh.length; i++) {
+			for(int j = 0; j < Mesh[i].length; j++) {
 				switch (Mesh[i][j]) {
 					case 1:
 						game.batch.draw(blue, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
@@ -188,6 +189,7 @@ public class GameScreen implements Screen{
 						game.batch.draw(projection, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
 						break;
 					default:
+						if(j < Mesh[i].length -2)
 						game.batch.draw(mesh, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
 						break;
 				}
@@ -243,30 +245,24 @@ public class GameScreen implements Screen{
 			}
 			else {
 			a.setFigure(next1.type, Mesh, 1);
-			//currBlock = nextBlocks[0];
-			//for(int i = 0; i < 3; i++)
-			//	nextBlocks[i] = nextBlocks[i+1];
-			//nextBlocks[3] = GenerateBlock(nextBlocks[2]);
 			next1 = next2;
 			next2 = next3;
 			next3 = next4;
 			next4 = GenerateBlock(next3.type, 0);
 			}
 		}
-		if(TimeUtils.nanoTime() - dropTime > 700000000) {
+		if(TimeUtils.nanoTime() - dropTime > dropTimeSpeed) {
 			if(a.bottom(Mesh)) { //Change figure, if I can`t move it to the bottom anymore or there is full lines
 				block_hold = false;
 				CheckLines();
 				a.setFigure(next1.type, Mesh, 1);
-				//currBlock = nextBlocks[0];
-				//for(int i = 0; i < 3; i++)
-				//	nextBlocks[i] = nextBlocks[i+1];
-				//nextBlocks[3] = GenerateBlock(nextBlocks[2]);
 				next1 = next2;
 				next2 = next3;
 				next3 = next4;
 				next4 = GenerateBlock(next3.type, 0);
 				dropTime = TimeUtils.nanoTime();
+				if(dropTimeSpeed > 1000000)
+					dropTimeSpeed -= 100000;
 			}
 			else {
 				a.moveDown(Mesh);
