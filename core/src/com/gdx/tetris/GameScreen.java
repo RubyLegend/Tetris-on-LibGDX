@@ -117,14 +117,14 @@ public class GameScreen implements Screen{
 				deleted = true;
 			}
 		}
-		Mesh = newMesh;
+ 		Mesh = newMesh;
 		return deleted;
 	}
 	@Override
 	public void show() {
 		// start the playback of the background music
 		// when the screen is shown
-		//music.play();
+		music.play();
 	}
 
 	@Override
@@ -182,30 +182,25 @@ public class GameScreen implements Screen{
 		
 		//--------------------------------------------
 		
-		if(Gdx.input.isKeyPressed(Settings.MoveLeft) && TimeUtils.nanoTime() - lastClickTime > 100000000) {
+		if(Gdx.input.isKeyJustPressed(Settings.MoveLeft)) {
 			a.moveLeft(Mesh);
-			lastClickTime = TimeUtils.nanoTime();
 		}
-		if(Gdx.input.isKeyPressed(Settings.MoveDown) && TimeUtils.nanoTime() - lastClickTime > 100000000) {
+		if(Gdx.input.isKeyPressed(Settings.MoveDown) && TimeUtils.nanoTime() - lastClickTime > 60000000) {
 			a.moveDown(Mesh);
 			lastClickTime = TimeUtils.nanoTime();
 		}
-		if(Gdx.input.isKeyPressed(Settings.MoveRight) && TimeUtils.nanoTime() - lastClickTime > 100000000) {
+		if(Gdx.input.isKeyJustPressed(Settings.MoveRight)) {
 			a.moveRight(Mesh);
-			lastClickTime = TimeUtils.nanoTime();
 		}
-		if(Gdx.input.isKeyPressed(Settings.Drop) && TimeUtils.nanoTime() - lastClickTime > 200000000 && !a.bottom(Mesh)) {
+		if(Gdx.input.isKeyJustPressed(Settings.Drop) && !a.bottom(Mesh)) {
 			a.Drop(Mesh);
 			dropTime = TimeUtils.nanoTime()-700000000;
-			lastClickTime = TimeUtils.nanoTime();
 		}
-		if(Gdx.input.isKeyPressed(Settings.RotLeft) && TimeUtils.nanoTime() - lastClickTime > 100000000) {
+		if(Gdx.input.isKeyJustPressed(Settings.RotLeft)) {
 			a.test_rotation(true, Mesh);
-			lastClickTime = TimeUtils.nanoTime();
 		}
-		if(Gdx.input.isKeyPressed(Settings.RotRight) && TimeUtils.nanoTime() - lastClickTime > 100000000) {
+		if(Gdx.input.isKeyJustPressed(Settings.RotRight)) {
 			a.test_rotation(false, Mesh);
-			lastClickTime = TimeUtils.nanoTime();
 		}
 		if(TimeUtils.nanoTime() - dropTime > 700000000) {
 			if(a.bottom(Mesh)) { //Change figure, if I can`t move it to the bottom anymore or there is full lines
