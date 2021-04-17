@@ -17,7 +17,7 @@ public class GameScreen implements Screen{
 	final TetrisGDX game;
 	//Texture block;
 	Music music;
-	Texture background, mesh, blue, yellow, orange, red, cyan, purple, green;
+	Texture background, mesh, projection, blue, yellow, orange, red, cyan, purple, green;
 	//Rectangle a, b, c, d;
 	Figure a;
 	public int color;
@@ -66,6 +66,7 @@ public class GameScreen implements Screen{
 		green = new Texture("GREEN.jpeg");
 		purple = new Texture("PURPLE.jpeg");
 		orange = new Texture("ORANGE.jpeg");
+		projection = new Texture("projection.jpeg");
 		a = new Figure(currBlock, Mesh);
 	}	
 	
@@ -95,6 +96,30 @@ public class GameScreen implements Screen{
 		else return GenerateBlock(prevBlock);
 	}
 	
+	private boolean CheckLines() {
+		int [][] newMesh = new int [COLS][ROWS];
+		int k = 0;
+		boolean deleted = false;
+		for(int i = 0; i < ROWS; i++) {
+			boolean isLine = true;
+			for(int j = 0; j < COLS; j++) {
+				if(Mesh[j][i] == 0 || Mesh[j][i] == 10)
+					isLine = false;
+			}
+			if(!isLine) { //Remove line and shift all blocks down
+				for(int j = 0; j < COLS; j++) {
+					newMesh[j][k] = Mesh[j][i];
+				}
+				k++;
+			}
+			else {
+				score += 100;
+				deleted = true;
+			}
+		}
+		Mesh = newMesh;
+		return deleted;
+	}
 	@Override
 	public void show() {
 		// start the playback of the background music
@@ -141,23 +166,22 @@ public class GameScreen implements Screen{
 					case 7:
 						game.batch.draw(yellow, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
 						break;
+					case 10:
+						game.batch.draw(projection, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
+						break;
 					default:
 						game.batch.draw(mesh, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
 						break;
 				}
 			}
 		}
-		game.font.draw(game.batch, "Score: " + score, SCOREPOS, Wheight-150);
+		game.font.draw(game.batch, "Score: " + score + "      type: " + a.type, SCOREPOS, Wheight-150);
 		game.font.draw(game.batch, "Next blocks: " + nextBlocks[0] + " " + nextBlocks[1]
-				       + " " + nextBlocks[2] + " " + nextBlocks[3], SCOREPOS, Wheight - 250);
+				       + " " + nextBlocks[2] + " " + nextBlocks[3] + "        a.x = " + a.a.getX() + " a.y = " + a.a.getY(), SCOREPOS, Wheight - 250);
 		game.batch.end();
 		
 		//--------------------------------------------
 		
-		//if(Gdx.input.isTouched() && TimeUtils.nanoTime() - lastClickTime > 100000000) {
-		//	takeBlock();
-		//	lastClickTime = TimeUtils.nanoTime();
-		//}
 		if(Gdx.input.isKeyPressed(Settings.MoveLeft) && TimeUtils.nanoTime() - lastClickTime > 100000000) {
 			a.moveLeft(Mesh);
 			lastClickTime = TimeUtils.nanoTime();
@@ -170,7 +194,7 @@ public class GameScreen implements Screen{
 			a.moveRight(Mesh);
 			lastClickTime = TimeUtils.nanoTime();
 		}
-		if(Gdx.input.isKeyPressed(Settings.Drop) && TimeUtils.nanoTime() - lastClickTime > 200000000) {
+		if(Gdx.input.isKeyPressed(Settings.Drop) && TimeUtils.nanoTime() - lastClickTime > 200000000 && !a.bottom(Mesh)) {
 			a.Drop(Mesh);
 			dropTime = TimeUtils.nanoTime()-700000000;
 			lastClickTime = TimeUtils.nanoTime();
@@ -184,7 +208,8 @@ public class GameScreen implements Screen{
 			lastClickTime = TimeUtils.nanoTime();
 		}
 		if(TimeUtils.nanoTime() - dropTime > 700000000) {
-			if(a.bottom(Mesh)) {
+			if(a.bottom(Mesh)) { //Change figure, if I can`t move it to the bottom anymore or there is full lines
+				CheckLines();
 				a.setFigure(nextBlocks[0], Mesh);
 				currBlock = nextBlocks[0];
 				for(int i = 0; i < 3; i++)
@@ -192,8 +217,10 @@ public class GameScreen implements Screen{
 				nextBlocks[3] = GenerateBlock(nextBlocks[2]);
 				dropTime = TimeUtils.nanoTime();
 			}
-			a.moveDown(Mesh);
-			dropTime = TimeUtils.nanoTime();
+			else {
+				a.moveDown(Mesh);
+				dropTime = TimeUtils.nanoTime();
+			}
 		}
 	}
 	
