@@ -1,16 +1,16 @@
 package com.gdx.tetris;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
+//import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.ScreenUtils;
+//import com.badlogic.gdx.math.Rectangle;
+//import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+//import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 public class GameScreen implements Screen{
 	//Variables
@@ -51,7 +51,6 @@ public class GameScreen implements Screen{
 		music.setLooping(true);
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Wwidth, Wheight);
-		//block = new Texture("block.png");
 		currBlock = GenerateBlock("none");
 		for(int i = 0; i < 4; i++) {
 			if(i==0)
@@ -67,12 +66,7 @@ public class GameScreen implements Screen{
 		green = new Texture("GREEN.jpeg");
 		purple = new Texture("PURPLE.jpeg");
 		orange = new Texture("ORANGE.jpeg");
-		//a = new Rectangle();
-		//a.x = XMIN;
-		//a.y = YMAX;
 		a = new Figure(currBlock, Mesh);
-		//color = 2;
-		//Mesh[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
 	}	
 	
 	public String GenerateBlock(String prevBlock) {
@@ -176,28 +170,30 @@ public class GameScreen implements Screen{
 			a.moveRight(Mesh);
 			lastClickTime = TimeUtils.nanoTime();
 		}
-		if(Gdx.input.isKeyPressed(Settings.Drop) && TimeUtils.nanoTime() - lastClickTime > 100000000) {
+		if(Gdx.input.isKeyPressed(Settings.Drop) && TimeUtils.nanoTime() - lastClickTime > 200000000) {
 			a.Drop(Mesh);
+			dropTime = TimeUtils.nanoTime()-700000000;
 			lastClickTime = TimeUtils.nanoTime();
 		}
 		if(Gdx.input.isKeyPressed(Settings.RotLeft) && TimeUtils.nanoTime() - lastClickTime > 100000000) {
-			a.RotateLeft(Mesh);
+			a.test_rotation(true, Mesh);
 			lastClickTime = TimeUtils.nanoTime();
 		}
 		if(Gdx.input.isKeyPressed(Settings.RotRight) && TimeUtils.nanoTime() - lastClickTime > 100000000) {
-			a.RotateRight(Mesh);
+			a.test_rotation(false, Mesh);
 			lastClickTime = TimeUtils.nanoTime();
 		}
 		if(TimeUtils.nanoTime() - dropTime > 700000000) {
+			if(a.bottom(Mesh)) {
+				a.setFigure(nextBlocks[0], Mesh);
+				currBlock = nextBlocks[0];
+				for(int i = 0; i < 3; i++)
+					nextBlocks[i] = nextBlocks[i+1];
+				nextBlocks[3] = GenerateBlock(nextBlocks[2]);
+				dropTime = TimeUtils.nanoTime();
+			}
 			a.moveDown(Mesh);
 			dropTime = TimeUtils.nanoTime();
-		}
-		if(a.bottom(Mesh)) {
-			a.setFigure(nextBlocks[0], Mesh);
-			currBlock = nextBlocks[0];
-			for(int i = 0; i < 3; i++)
-				nextBlocks[i] = nextBlocks[i+1];
-			nextBlocks[3] = GenerateBlock(nextBlocks[2]);
 		}
 	}
 	

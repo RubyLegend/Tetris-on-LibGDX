@@ -248,6 +248,23 @@ public class Figure {
 		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
 		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
 	}
+	public boolean overlaps(int [][] MESH) {
+		boolean answer = false;
+		//MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = 0;
+		//MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = 0;
+		//MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = 0;
+		//MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = 0;
+		if(MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] != 0 ||
+		   MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] != 0 ||
+		   MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] != 0 ||
+		   MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] != 0)
+			answer = true;
+		//MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
+		//MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
+		//MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
+		//MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+		return answer;
+	}
 	public boolean bottom(int [][] MESH) {
 		boolean answer = false;
 		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = 0;
@@ -265,22 +282,347 @@ public class Figure {
 		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
 		return answer;
 	}
-	
 	//test for SRS wall kick, if needed
-	private boolean test_rotation() {
-		
+	public boolean test_rotation(boolean left, int [][] MESH) {
+		//positions
+		//0 - spawn
+		//1 - clockwise rotation (R)
+		//2 - double rotation    (2)
+		//3 - counter-clockwise  (L)
+		if(left) {
+			if(type != "i")
+				switch(rot) {
+					case 0:{ //0->L
+						if(testLeft(0,0,MESH))
+							return true;
+						else if(testLeft(1,0,MESH))
+							return true;
+						else if(testLeft(1,1,MESH))
+							return true;
+						else if(testLeft(0,-2,MESH))
+							return true;
+						else if(testLeft(1,-2,MESH))
+							return true;
+						else return false;
+					}
+					case 1:{ //R->0
+						if(testLeft(0,0,MESH))
+							return true;
+						else if(testLeft(1,0,MESH))
+							return true;
+						else if(testLeft(1,-1,MESH))
+							return true;
+						else if(testLeft(0,+2,MESH))
+							return true;
+						else if(testLeft(1,2,MESH))
+							return true;
+						else return false;
+					}
+					case 2:{ //2->R
+						if(testLeft(0,0,MESH))
+							return true;
+						else if(testLeft(-1,0,MESH))
+							return true;
+						else if(testLeft(-1,1,MESH))
+							return true;
+						else if(testLeft(0,-2,MESH))
+							return true;
+						else if(testLeft(-1,-2,MESH))
+							return true;
+						else return false;
+					}
+					case 3:{ //L->2
+						if(testLeft(0,0,MESH))
+							return true;
+						else if(testLeft(-1,0,MESH))
+							return true;
+						else if(testLeft(-1,-1,MESH))
+							return true;
+						else if(testLeft(0,2,MESH))
+							return true;
+						else if(testLeft(-1,2,MESH))
+							return true;
+						else return false;
+					}
+				}
+			else
+				switch(rot) {
+					case 0:{ //0->L
+						if(testLeft(0,0,MESH))
+							return true;
+						else if(testLeft(-1,0,MESH))
+							return true;
+						else if(testLeft(2,0,MESH))
+							return true;
+						else if(testLeft(-1,2,MESH))
+							return true;
+						else if(testLeft(2,-1,MESH))
+							return true;
+						else return false;
+					}
+					case 1:{ //R->0
+						if(testLeft(0,0,MESH))
+							return true;
+						else if(testLeft(2,0,MESH))
+							return true;
+						else if(testLeft(-1,0,MESH))
+							return true;
+						else if(testLeft(2,1,MESH))
+							return true;
+						else if(testLeft(-1,-2,MESH))
+							return true;
+						else return false;
+					}
+					case 2:{ //2->R
+						if(testLeft(0,0,MESH))
+							return true;
+						else if(testLeft(1,0,MESH))
+							return true;
+						else if(testLeft(-2,0,MESH))
+							return true;
+						else if(testLeft(1,-2,MESH))
+							return true;
+						else if(testLeft(-2,1,MESH))
+							return true;
+						else return false;
+					}
+					case 3:{ //L->2
+						if(testLeft(0,0,MESH))
+							return true;
+						else if(testLeft(-2,0,MESH))
+							return true;
+						else if(testLeft(1,0,MESH))
+							return true;
+						else if(testLeft(-2,-1,MESH))
+							return true;
+						else if(testLeft(1,2,MESH))
+							return true;
+						else return false;
+					}
+				}
+		}
+		else {
+			if(type != "i")
+				switch(rot) {
+					case 0:{ //0->R
+						if(testRight(0,0,MESH))
+							return true;
+						else if(testRight(-1,0,MESH))
+							return true;
+						else if(testRight(-1,1,MESH))
+							return true;
+						else if(testRight(0,-2,MESH))
+							return true;
+						else if(testRight(-1,-2,MESH))
+							return true;
+						else return false;
+					}
+					case 1:{ //R->2
+						if(testRight(0,0,MESH))
+							return true;
+						else if(testRight(1,0,MESH))
+							return true;
+						else if(testRight(1,-1,MESH))
+							return true;
+						else if(testRight(0,+2,MESH))
+							return true;
+						else if(testRight(1,2,MESH))
+							return true;
+						else return false;
+					}
+					case 2:{ //2->L
+						if(testRight(0,0,MESH))
+							return true;
+						else if(testRight(1,0,MESH))
+							return true;
+						else if(testRight(1,1,MESH))
+							return true;
+						else if(testRight(0,-2,MESH))
+							return true;
+						else if(testRight(1,-2,MESH))
+							return true;
+						else return false;
+					}
+					case 3:{ //L->0
+						if(testRight(0,0,MESH))
+							return true;
+						else if(testRight(-1,0,MESH))
+							return true;
+						else if(testRight(-1,-1,MESH))
+							return true;
+						else if(testRight(0,2,MESH))
+							return true;
+						else if(testRight(-1,2,MESH))
+							return true;
+						else return false;
+					}
+				}
+			else
+				switch(rot) {
+					case 0:{ //0->L
+						if(testRight(0,0,MESH))
+							return true;
+						else if(testRight(1,0,MESH))
+							return true;
+						else if(testRight(-2,0,MESH))
+							return true;
+						else if(testRight(1,-2,MESH))
+							return true;
+						else if(testRight(-2,1,MESH))
+							return true;
+						else return false;
+					}
+					case 1:{ //R->0
+						if(testRight(0,0,MESH))
+							return true;
+						else if(testRight(2,0,MESH))
+							return true;
+						else if(testRight(-1,0,MESH))
+							return true;
+						else if(testRight(2,1,MESH))
+							return true;
+						else if(testRight(-1,-2,MESH))
+							return true;
+						else return false;
+					}
+					case 2:{ //2->R
+						if(testRight(0,0,MESH))
+							return true;
+						else if(testRight(1,0,MESH))
+							return true;
+						else if(testRight(-2,0,MESH))
+							return true;
+						else if(testRight(1,-2,MESH))
+							return true;
+						else if(testRight(-2,1,MESH))
+							return true;
+						else return false;
+					}
+					case 3:{ //L->2
+						if(testRight(0,0,MESH))
+							return true;
+						else if(testRight(-2,0,MESH))
+							return true;
+						else if(testRight(1,0,MESH))
+							return true;
+						else if(testRight(-2,-1,MESH))
+							return true;
+						else if(testRight(1,2,MESH))
+							return true;
+						else return false;
+					}
+				}
+		}
 		return true;
 	}
-	//For rotation look in
-	//wiki: https://tetris.wiki/Super_Rotation_System
-	public void RotateLeft(int [][] MESH) {
-		if(rot == 0) rot = 3;
-		else rot--;
+	private boolean testLeft(int x, int y, int [][] MESH) {
 		//Removing block from mesh
 		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = 0;
 		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = 0;
 		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = 0;
 		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = 0;
+		
+		RotateLeft(MESH);
+		a.x+=x*WIDTH;   a.y+=y*WIDTH;
+		b.x+=x*WIDTH;   b.y+=y*WIDTH;
+		c.x+=x*WIDTH;   c.y+=y*WIDTH;
+		d.x+=x*WIDTH;   d.y+=y*WIDTH;
+		if(a.x >= XMIN && b.x >= XMIN && c.x >= XMIN && d.x >= XMIN
+				&& a.y >= YMIN && b.y >= YMIN && c.y >= YMIN && d.y >= YMIN
+				&& a.x <= XMAX && b.x <= XMAX && c.x <= XMAX && d.x <= XMAX
+				&& a.y <= YMAX && b.y <= YMAX && c.y <= YMAX && d.y <= YMAX) {
+			if(overlaps(MESH)) {
+				a.x-=x*WIDTH;   a.y-=y*WIDTH;
+				b.x-=x*WIDTH;   b.y-=y*WIDTH;
+				c.x-=x*WIDTH;   c.y-=y*WIDTH;
+				d.x-=x*WIDTH;   d.y-=y*WIDTH;
+				RotateRight(MESH);
+				//Adding block back to mesh
+				MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
+				MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
+				MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
+				MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+				return false;
+			}
+			//Adding block back to mesh
+			MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
+			MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
+			MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
+			MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+			return true;
+		}
+		else {
+			a.x-=x*WIDTH;   a.y-=y*WIDTH;
+			b.x-=x*WIDTH;   b.y-=y*WIDTH;
+			c.x-=x*WIDTH;   c.y-=y*WIDTH;
+			d.x-=x*WIDTH;   d.y-=y*WIDTH;
+			RotateRight(MESH);
+			//Adding block back to mesh
+			MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
+			MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
+			MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
+			MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+			return false;
+		}
+	}
+	private boolean testRight(int x, int y, int [][] MESH) {
+		//Removing block from mesh
+		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = 0;
+		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = 0;
+		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = 0;
+		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = 0;
+				
+		RotateRight(MESH);
+		a.x+=x*WIDTH;   a.y+=y*WIDTH;
+		b.x+=x*WIDTH;   b.y+=y*WIDTH;
+		c.x+=x*WIDTH;   c.y+=y*WIDTH;
+		d.x+=x*WIDTH;   d.y+=y*WIDTH;
+		if(a.x >= XMIN && b.x >= XMIN && c.x >= XMIN && d.x >= XMIN
+				&& a.y >= YMIN && b.y >= YMIN && c.y >= YMIN && d.y >= YMIN
+				&& a.x <= XMAX && b.x <= XMAX && c.x <= XMAX && d.x <= XMAX
+				&& a.y <= YMAX && b.y <= YMAX && c.y <= YMAX && d.y <= YMAX) {
+			if(overlaps(MESH)) {
+				a.x-=x*WIDTH;   a.y-=y*WIDTH;
+				b.x-=x*WIDTH;   b.y-=y*WIDTH;
+				c.x-=x*WIDTH;   c.y-=y*WIDTH;
+				d.x-=x*WIDTH;   d.y-=y*WIDTH;
+				RotateLeft(MESH);
+				//Adding block back to mesh
+				MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
+				MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
+				MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
+				MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+				return false;
+			}
+			//Adding block back to mesh
+			MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
+			MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
+			MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
+			MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+			return true;
+		}
+		else {
+			a.x-=x*WIDTH;   a.y-=y*WIDTH;
+			b.x-=x*WIDTH;   b.y-=y*WIDTH;
+			c.x-=x*WIDTH;   c.y-=y*WIDTH;
+			d.x-=x*WIDTH;   d.y-=y*WIDTH;
+			RotateLeft(MESH);
+			//Adding block back to mesh
+			MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
+			MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
+			MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
+			MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+			return false;
+		}
+	}
+	//For rotation look in
+	//wiki: https://tetris.wiki/Super_Rotation_System
+	//P.S. Rotation isn`t optimized for now
+	//But it works :)
+	public void RotateLeft(int [][] MESH) {
+		if(rot == 0) rot = 3;
+		else rot--;
+		
 		
 		switch(type) {
 		case "i":
@@ -510,21 +852,12 @@ public class Figure {
 			break;
 		//case z
 		}
-		//Adding block back to mesh
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
+		
 		
 	}
 	public void RotateRight(int [][] MESH) {
 		if(rot == 3) rot = 0;
 		else rot++;
-		//Removing block from mesh
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = 0;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = 0;
 		
 		switch(type) {
 		case "i":
@@ -764,26 +1097,9 @@ public class Figure {
 			break;
 		//case z
 		}
-		//Adding block back to mesh
-		MESH[(int) ((a.x-XMIN)/WIDTH)][(int) ((a.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((b.x-XMIN)/WIDTH)][(int) ((b.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
-		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
 		
 	}
 	
-	
-	public void setX(int x) {
-		while(x+3*WIDTH > XMAX) x-=WIDTH;
-		while(x < XMIN) x+=WIDTH;
-		a.x = x;
-		b.x = x+WIDTH;
-		c.x = x+2*WIDTH;
-		d.x = x+3*WIDTH;
-	}
-	public void setY(int y) {
-		
-	}
 
 
 
