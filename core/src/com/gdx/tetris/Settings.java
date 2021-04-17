@@ -11,6 +11,7 @@ public class Settings {
 	static int MoveDown = Keys.S;
 	static int Drop = Keys.SPACE;
 	static int Hold = Keys.SHIFT_LEFT;
+	static int Pause = Keys.ESCAPE;
 	static public int WIDTH = 40; //Width of a block
 	static public int ROWS = 23; //Number of rows
 	static public int COLS = 10; //Number of cols
