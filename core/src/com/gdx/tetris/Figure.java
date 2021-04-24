@@ -1,6 +1,8 @@
 package com.gdx.tetris;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 //import com.badlogic.gdx.Gdx;
 //import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
@@ -1083,12 +1085,12 @@ public class Figure {
 		MESH[(int) ((c.x-XMIN)/WIDTH)][(int) ((c.y-YMIN)/WIDTH)] = color;
 		MESH[(int) ((d.x-XMIN)/WIDTH)][(int) ((d.y-YMIN)/WIDTH)] = color;
 	}
-	public void Draw(final TetrisGDX game, int width, Texture texture) {
+	public void Draw(Batch batch, int width, TextureRegion texture) {
 		//game.batch.begin();
-		game.batch.draw(texture, a.x, a.y, width, width);
-		game.batch.draw(texture, b.x, b.y, width, width);
-		game.batch.draw(texture, c.x, c.y, width, width);
-		game.batch.draw(texture, d.x, d.y, width, width);
+		batch.draw(texture, a.x, a.y, width, width);
+		batch.draw(texture, b.x, b.y, width, width);
+		batch.draw(texture, c.x, c.y, width, width);
+		batch.draw(texture, d.x, d.y, width, width);
 		//game.batch.end();
 	}
 	public void UnProject(int [][] MESH) {

@@ -5,8 +5,23 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 //import com.badlogic.gdx.math.Rectangle;
 //import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -17,7 +32,7 @@ public class GameScreen implements Screen{
 	final TetrisGDX game;
 	GameScreen thisGame;
 	Music music;
-	Texture background, mesh, projection, blue, yellow, orange, red, cyan, purple, green;
+	//Texture background, mesh, projection, blue, yellow, orange, red, cyan, purple, green;
 	Figure a, holding, next1, next2, next3, next4;
 	private long lastClickTime = 0, dropTime = 0;
 	OrthographicCamera camera;
@@ -25,7 +40,7 @@ public class GameScreen implements Screen{
 	private int score = 0;
 	private int lines = 0;
 	int dropTimeSpeed = 700000000;
-	static public float alpha = 0;
+	boolean firstboot = true;
 	//Settings for the game
 	static public int WIDTH = Settings.WIDTH; //Width of a block
 	static public int ROWS = Settings.ROWS +2; //Number of rows
@@ -40,15 +55,26 @@ public class GameScreen implements Screen{
 	//Window settings
 	private static int Wwidth = 1920;
 	private static int Wheight = 1080;
+	//--------------------
+	Stage main;
+	Table table;
+	TextureAtlas atlas;
+	TextButtonStyle textButtonStyle;
+	Button start;
+	BitmapFont font;
+	Skin skin;
+	//--------------------
+	
 	
 	
 	public GameScreen(final TetrisGDX game) {
 		this.game = game;
+		main = new Stage();
+		table = new Table();
 		// create the camera and the SpriteBatch
 		music = Gdx.audio.newMusic(Gdx.files.internal("audio.mp3"));
 		music.setLooping(true);
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false, getWwidth(), getWheight());
+
 		//Generating blocks
 		holding = new Figure();
 		a = GenerateBlock("none", 1);
@@ -57,17 +83,24 @@ public class GameScreen implements Screen{
 		next3 = GenerateBlock(next2.type, 0);
 		next4 = GenerateBlock(next3.type, 0);
 		//-----------------------------
-		background = new Texture("background.jpg");
-		mesh = new Texture("mesh.jpeg");
-		blue = new Texture("BLUE.jpeg");
-		cyan = new Texture("CYAN.jpeg");
-		red = new Texture("RED.jpeg");
-		yellow = new Texture("YELLOW.jpeg");
-		green = new Texture("GREEN.jpeg");
-		purple = new Texture("PURPLE.jpeg");
-		orange = new Texture("ORANGE.jpeg");
-		projection = new Texture("projection.jpeg");
+		atlas = new TextureAtlas(Gdx.files.internal("textures.pack"));
 		nextblockposY = getWheight() - 300;
+		
+		skin = new Skin();
+		skin.add("default", new TextFieldStyle(new BitmapFont(), Color.WHITE, null, null, null));
+		TextField hold = new TextField("Holding block:", skin);
+		hold.setX(HOLDPOSX);
+		hold.setY(getWheight()-150);
+		TextField sc = new TextField("Score : " + score, skin);
+		sc.setX(SCOREPOSX);
+		sc.setY(getWheight()-150);
+		TextField nb = new TextField("Next blocks:", skin);
+		nb.setX(SCOREPOSX);
+		nb.setY(getWheight()-200);
+		main.addActor(hold);
+		main.addActor(sc);
+		main.addActor(nb);
+		main.addAction(Actions.sequence(Actions.alpha(0), Actions.fadeIn(1f)));
 	}	
 	
 	public void SaveGameScreen(GameScreen game) {
@@ -131,69 +164,64 @@ public class GameScreen implements Screen{
 		//music.play();
 	}
 
-	private Texture getTexture(int color) {
-		Texture temp = blue;
+	private TextureRegion getTexture(int color) {
 		switch(color) {
-		case 1: temp = blue; break;
-		case 2: temp = cyan; break;
-		case 3: temp = green; break;
-		case 4: temp = orange; break;
-		case 5: temp = purple; break;
-		case 6: temp = red; break;
-		case 7: temp = yellow; break;
-		case 10: temp = projection; break;
+			case 1: return atlas.findRegion("BLUE");
+			case 2: return atlas.findRegion("CYAN");
+			case 3: return atlas.findRegion("GREEN");
+			case 4: return atlas.findRegion("ORANGE");
+			case 5: return atlas.findRegion("PURPLE");
+			case 6: return atlas.findRegion("RED");
+			case 7: return atlas.findRegion("YELLOW");
+			case 10: return atlas.findRegion("projection");
 		}
-		return temp;
+		return null;
 	}
 	
 	@Override
 	public void render(float delta) {
-		// tell the camera to update its matrices
-		camera.update();
-
-		// tell the SpriteBatch to render in the
-		// coordinate system specified by the camera.
-		game.batch.setProjectionMatrix(camera.combined);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		main.act(Gdx.graphics.getDeltaTime());
 		
 		//-------------------------------------
-		game.batch.begin();
+		main.getBatch().begin();
 		
-		if(alpha < 1) {
-			alpha += 0.04f;
-			game.batch.setColor(255, 255, 255, alpha);
-			game.font.setColor(255,255,255,alpha);
-		}    
-		game.batch.draw(background, 0, 0, getWwidth(), getWheight());
+		//if(alpha < 1) {
+		//	alpha += 0.02f;
+		//	game.batch.setColor(255,255,255,alpha);
+		//	game.font.setColor(255,255,255,alpha);
+		//}    
+		main.getBatch().draw(atlas.findRegion("background"), 0, 0, getWwidth(), getWheight());
 		for(int i = 0; i < Mesh.length; i++) {
 			for(int j = 0; j < Mesh[i].length; j++) {
 				switch (Mesh[i][j]) {
 					case 1:
-						game.batch.draw(blue, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
+						main.getBatch().draw(atlas.findRegion("BLUE"), XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
 						break;
 					case 2:
-						game.batch.draw(cyan, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
+						main.getBatch().draw(atlas.findRegion("CYAN"), XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
 						break;
 					case 3:
-						game.batch.draw(green, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
+						main.getBatch().draw(atlas.findRegion("GREEN"), XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
 						break;
 					case 4:
-						game.batch.draw(orange, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
+						main.getBatch().draw(atlas.findRegion("ORANGE"), XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
 						break;
 					case 5:
-						game.batch.draw(purple, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
+						main.getBatch().draw(atlas.findRegion("PURPLE"), XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
 						break;
 					case 6:
-						game.batch.draw(red, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
+						main.getBatch().draw(atlas.findRegion("RED"), XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
 						break;
 					case 7:
-						game.batch.draw(yellow, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
+						main.getBatch().draw(atlas.findRegion("YELLOW"), XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
 						break;
 					case 10:
-						game.batch.draw(projection, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
+						main.getBatch().draw(atlas.findRegion("projection"), XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
 						break;
 					default:
 						if(j < Mesh[i].length -2)
-						game.batch.draw(mesh, XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
+							main.getBatch().draw(atlas.findRegion("mesh"), XMIN + i*WIDTH, YMIN + j*WIDTH, WIDTH, WIDTH);
 						break;
 				}
 			}
@@ -201,20 +229,19 @@ public class GameScreen implements Screen{
 		}
 		if(holding.type != null) {
 			holding.setXY(HOLDPOSX, getWheight()-250);
-			holding.Draw(game, WIDTH, getTexture(holding.color));
+			holding.Draw(main.getBatch(), WIDTH, getTexture(holding.color));
 		}
 		next1.setXY(SCOREPOSX, nextblockposY);
-		next1.Draw(game, WIDTH, getTexture(next1.color));
+		next1.Draw(main.getBatch(), WIDTH, getTexture(next1.color));
 		next2.setXY(SCOREPOSX, nextblockposY - 3*WIDTH);
-		next2.Draw(game, WIDTH, getTexture(next2.color));
+		next2.Draw(main.getBatch(), WIDTH, getTexture(next2.color));
 		next3.setXY(SCOREPOSX, nextblockposY - 6*WIDTH);
-		next3.Draw(game, WIDTH, getTexture(next3.color));
+		next3.Draw(main.getBatch(), WIDTH, getTexture(next3.color));
 		next4.setXY(SCOREPOSX, nextblockposY - 9*WIDTH);
-		next4.Draw(game, WIDTH, getTexture(next4.color));
-		game.font.draw(game.batch, "Holding block: ", HOLDPOSX, getWheight()-150);
-		game.font.draw(game.batch, "Score: " + score + "      type: " + a.type, SCOREPOSX, getWheight()-150);
-		game.font.draw(game.batch, "Next blocks: " + "            a.x = " + a.a.getX() + " a.y = " + a.a.getY(), SCOREPOSX, getWheight() - 200);
-		game.batch.end();
+		next4.Draw(main.getBatch(), WIDTH, getTexture(next4.color));
+		
+		main.getBatch().end();
+		main.draw();
 		
 		//--------------------------------------------
 		
@@ -256,7 +283,6 @@ public class GameScreen implements Screen{
 		}
 		if(Gdx.input.isKeyJustPressed(Settings.Pause)) {
 			game.setScreen(new PauseScreen(game, thisGame));
-			alpha = 0;
 			
 		}
 		if(TimeUtils.nanoTime() - dropTime > dropTimeSpeed) {
@@ -306,8 +332,7 @@ public class GameScreen implements Screen{
 
 	@Override
 	public void dispose() {
-		background.dispose();
-		//block.dispose();
+		// TODO Auto-generated method stub
 	}
 
 	public static int getWwidth() {
