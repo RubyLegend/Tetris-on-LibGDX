@@ -1,0 +1,146 @@
+
+textures.png
+size: 4096, 4096
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+BLUE
+  rotate: false
+  xy: 2, 262
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+BLUE_dark
+  rotate: false
+  xy: 3844, 3616
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+CYAN
+  rotate: false
+  xy: 2054, 622
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+CYAN_dark
+  rotate: false
+  xy: 3336, 1344
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+GREEN
+  rotate: false
+  xy: 2, 132
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+GREEN_dark
+  rotate: false
+  xy: 2, 2
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+ORANGE
+  rotate: false
+  xy: 1924, 622
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+ORANGE_dark
+  rotate: false
+  xy: 3206, 1344
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+PURPLE
+  rotate: false
+  xy: 3844, 3486
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+PURPLE_dark
+  rotate: false
+  xy: 132, 132
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+RED
+  rotate: false
+  xy: 1924, 492
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+RED_dark
+  rotate: false
+  xy: 262, 262
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+YELLOW
+  rotate: false
+  xy: 3844, 3746
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+YELLOW_dark
+  rotate: false
+  xy: 2054, 492
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+background
+  rotate: false
+  xy: 2, 1474
+  size: 3840, 2400
+  orig: 3840, 2400
+  offset: 0, 0
+  index: -1
+black_background
+  rotate: false
+  xy: 2, 392
+  size: 1920, 1080
+  orig: 1920, 1080
+  offset: 0, 0
+  index: -1
+block
+  rotate: false
+  xy: 3974, 3849
+  size: 25, 25
+  orig: 25, 25
+  offset: 0, 0
+  index: -1
+mesh
+  rotate: false
+  xy: 132, 262
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+projection
+  rotate: false
+  xy: 3206, 1214
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+tetris
+  rotate: false
+  xy: 1924, 752
+  size: 1280, 720
+  orig: 1280, 720
+  offset: 0, 0
+  index: -1

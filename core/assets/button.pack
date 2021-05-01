@@ -1,20 +1,27 @@
 
 button.png
-size: 4096, 512
+size: 4096, 1024
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
-17868
+hover
+  rotate: false
+  xy: 1732, 454
+  size: 1728, 450
+  orig: 1729, 452
+  offset: 0, 2
+  index: -1
+normal
+  rotate: false
+  xy: 2, 454
+  size: 1728, 450
+  orig: 1729, 452
+  offset: 0, 2
+  index: -1
+pressed
   rotate: false
   xy: 2, 2
   size: 1728, 450
-  orig: 2060, 862
-  offset: 170, 196
-  index: -1
-17869
-  rotate: false
-  xy: 1732, 2
-  size: 1728, 450
-  orig: 2060, 862
-  offset: 170, 196
+  orig: 1729, 452
+  offset: 0, 2
   index: -1

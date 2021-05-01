@@ -107,7 +107,7 @@ public class Figure {
 			Draw(MESH);
 		}
 	}
-	public void setFigure(String type, int [][] MESH, int draw) {
+	public void setFigure(String type, int [][] MESH, int draw, boolean hold) {
 		e.x = 0;
 		this.type = type;
 		switch(type) {
@@ -167,6 +167,7 @@ public class Figure {
 			color = 6; //red
 			break;
 		}
+		if(hold) color+=10;
 		rot = 0;
 		if(draw == 1) {
 			Project(MESH);
@@ -1103,7 +1104,6 @@ public class Figure {
 		}
 	}
 	public void Project(int [][] MESH) {
-		int r = MESH[0].length;
 		UnProject(MESH);
 		e.x = a.x;
 		f.x = b.x;

@@ -24,28 +24,27 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 public class PauseScreen implements Screen {
 	final TetrisGDX game;
 	final GameScreen g2;
-	Texture background;
+	Screen thisScreen;
 	Stage main;
 	Table table;
-	TextureAtlas atlas;
-	TextureAtlas buttonAtlas;
+	TextureAtlas atlas, buttonAtlas;
 	TextButtonStyle textButtonStyle;
 	Button cont;
 	BitmapFont font;
 	Skin skin, button;
-	
+	FrameRate rate;
 	
 	public PauseScreen(final TetrisGDX game, final GameScreen g2) {
 		this.game = game;
 		this.g2 = g2;
+		SaveScreen(this);
 		main = new Stage();
 		Gdx.input.setInputProcessor(main);
 		table = new Table();
 		table.setFillParent(true);
 		main.addActor(table);
-		
+		rate = new FrameRate();
 		//table.setDebug(true);
-		background = new Texture("tetris.jpeg");
 		
 		skin = new Skin();
 		skin.add("default", new LabelStyle(new BitmapFont(), Color.WHITE));
@@ -56,27 +55,30 @@ public class PauseScreen implements Screen {
 	    button.addRegions(buttonAtlas);
 	    textButtonStyle = new TextButtonStyle();
 	    textButtonStyle.font = font;
-	    textButtonStyle.up = button.getDrawable("17868");
-	    textButtonStyle.down = button.getDrawable("17869");
+	    textButtonStyle.up = button.getDrawable("normal");
+	    textButtonStyle.down = button.getDrawable("pressed");
+	    textButtonStyle.over = button.getDrawable("hover");
 	    cont = new TextButton("Continue", textButtonStyle);
 	    cont.addListener(new ClickListener() {
 	        @Override
 	        public void clicked(InputEvent event, float x, float y) {
-	        	game.setScreen(g2);
-				dispose();
+	        	game.setScreen(new Animations(thisScreen, g2, game, 0.1f));
 	    		super.clicked(event, x, y);
 	        }
 	    });
 	    
 	    skin.add("default", new TextFieldStyle(new BitmapFont(), Color.WHITE, null, null, null));
 		TextField Pause = new TextField("             Pause", skin);
-	    table.add(Pause);
-	    
-	    table.row();
-	    table.add(cont).width(400).height(150);
+	    table.add(Pause).height(50).row();
+	    table.add(cont).width(300).height(100);
 	    main.addAction(Actions.sequence(Actions.alpha(0), Actions.fadeIn(1.5f)));
-		background = new Texture("black_background.jpg");	
+	    atlas = new TextureAtlas(Gdx.files.internal("textures.pack"));
 	}
+	
+	public void SaveScreen (Screen screen) {
+		thisScreen = screen;
+	}
+	
 	@Override
 	public void show() {
 		// TODO Auto-generated method stub
@@ -88,10 +90,11 @@ public class PauseScreen implements Screen {
 		main.act(Gdx.graphics.getDeltaTime());
 		// TODO Auto-generated method stub
 		main.getBatch().begin();
-		main.getBatch().draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		main.getBatch().draw(atlas.findRegion("background"), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		main.getBatch().end();
 		main.draw();
-	
+		rate.update();
+		rate.render();
 	}
 
 	@Override

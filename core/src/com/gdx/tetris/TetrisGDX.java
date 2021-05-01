@@ -7,17 +7,19 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
 
 public class TetrisGDX extends Game {
-	//Animation<TextureRegion> animation;
 	public SpriteBatch batch;
 	public BitmapFont font;
+	public ShapeRenderer shapeRenderer;
 	
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
+		shapeRenderer = new ShapeRenderer();
 		font = new BitmapFont(); // Default - Arial
 		this.setScreen(new MainMenuScreen(this));
 		

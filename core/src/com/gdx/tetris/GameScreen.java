@@ -30,7 +30,6 @@ import com.badlogic.gdx.utils.TimeUtils;
 public class GameScreen implements Screen{
 	//Variables
 	final TetrisGDX game;
-	GameScreen thisGame;
 	Music music;
 	//Texture background, mesh, projection, blue, yellow, orange, red, cyan, purple, green;
 	Figure a, holding, next1, next2, next3, next4;
@@ -39,6 +38,7 @@ public class GameScreen implements Screen{
 	private boolean block_hold = false;
 	private int score = 0;
 	private int lines = 0;
+	private int level = 0;
 	int dropTimeSpeed = 700000000;
 	boolean firstboot = true;
 	//Settings for the game
@@ -46,12 +46,12 @@ public class GameScreen implements Screen{
 	static public int ROWS = Settings.ROWS +2; //Number of rows
 	static public int COLS = Settings.COLS; //Number of cols
 	static public int XMIN = Settings.XMIN; //|Position
-	static public int YMIN = Settings.YMIN;  //|of map
+	static public int YMIN = Settings.YMIN; //|of map
 	//------------------------
 	static public int YMAX = YMIN + (ROWS-1)*WIDTH;
 	static public int XMAX = XMIN + (COLS-1)*WIDTH;
 	private int SCOREPOSX = XMAX + 100, HOLDPOSX = XMIN - 200, nextblockposY;
-	static public int [][] Mesh = new int[COLS][ROWS];
+	public int [][] Mesh = new int[COLS][ROWS];
 	//Window settings
 	private static int Wwidth = 1920;
 	private static int Wheight = 1080;
@@ -63,8 +63,10 @@ public class GameScreen implements Screen{
 	Button start;
 	BitmapFont font;
 	Skin skin;
+	FrameRate rate;
 	//--------------------
-	
+	TextField hold, sc, nb, ln, lvl;
+	boolean GameOver = false;
 	
 	
 	public GameScreen(final TetrisGDX game) {
@@ -74,7 +76,7 @@ public class GameScreen implements Screen{
 		// create the camera and the SpriteBatch
 		music = Gdx.audio.newMusic(Gdx.files.internal("audio.mp3"));
 		music.setLooping(true);
-
+		rate = new FrameRate();
 		//Generating blocks
 		holding = new Figure();
 		a = GenerateBlock("none", 1);
@@ -88,24 +90,31 @@ public class GameScreen implements Screen{
 		
 		skin = new Skin();
 		skin.add("default", new TextFieldStyle(new BitmapFont(), Color.WHITE, null, null, null));
-		TextField hold = new TextField("Holding block:", skin);
+		hold = new TextField("Holding block:", skin);
 		hold.setX(HOLDPOSX);
-		hold.setY(getWheight()-150);
-		TextField sc = new TextField("Score : " + score, skin);
+		hold.setY(getWheight()-180);
+		sc = new TextField("Score : " + score, skin);
 		sc.setX(SCOREPOSX);
-		sc.setY(getWheight()-150);
-		TextField nb = new TextField("Next blocks:", skin);
+		sc.setY(getWheight()-180);
+		ln = new TextField("Lines : " + lines, skin);
+		ln.setX(SCOREPOSX);
+		ln.setY(getWheight()-200);
+		lvl = new TextField("Level : " + level, skin);
+		lvl.setX(SCOREPOSX);
+		lvl.setY(getWheight()-220);
+		nb = new TextField("Next blocks:", skin);
 		nb.setX(SCOREPOSX);
-		nb.setY(getWheight()-200);
+		nb.setY(getWheight()-240);
+		
 		main.addActor(hold);
 		main.addActor(sc);
 		main.addActor(nb);
-		main.addAction(Actions.sequence(Actions.alpha(0), Actions.fadeIn(1f)));
+		main.addActor(ln);
+		main.addActor(lvl);
+		main.getRoot().getColor().a = 0; 
+		main.addAction(Actions.fadeIn(1f));
 	}	
 	
-	public void SaveGameScreen(GameScreen game) {
-		thisGame = game;
-	}
 	
 	public Figure GenerateBlock(String prevBlock, int draw) {
 		double gen = Math.random()*7;
@@ -133,9 +142,10 @@ public class GameScreen implements Screen{
 		else return GenerateBlock(prevBlock, draw);
 	}
 	
-	private boolean CheckLines() {
+	private boolean CheckLines() { //Check for full lines and delete it
 		int [][] newMesh = new int [COLS][ROWS];
 		int k = 0;
+		int tline = 0;
 		boolean deleted = false;
 		for(int i = 0; i < ROWS; i++) {
 			boolean isLine = true;
@@ -150,10 +160,39 @@ public class GameScreen implements Screen{
 				k++;
 			}
 			else {
-				score += 100;
-				deleted = true;
+				tline++;
 			}
 		}
+		switch(tline) {
+		case 0:{
+			break;
+		}
+		case 1: {
+			score += 100;
+			break;
+		}
+		case 2: {
+			score += 300;
+			break;
+		}
+		case 3: {
+			score += 700;
+			break;
+		}
+		case 4 :{
+			score += 1500;
+			break;
+		}
+		}
+		lines+=tline;
+		if(lines >= 10) {
+			lines -= 10;
+			level++;
+		}
+		sc.setText("Score : " + score);
+		ln.setText("Lines : " + lines);
+		lvl.setText("Level : " + level);
+		deleted = true;
  		Mesh = newMesh;
 		return deleted;
 	}
@@ -167,12 +206,20 @@ public class GameScreen implements Screen{
 	private TextureRegion getTexture(int color) {
 		switch(color) {
 			case 1: return atlas.findRegion("BLUE");
+			case 11: return atlas.findRegion("BLUE_dark");
 			case 2: return atlas.findRegion("CYAN");
+			case 12: return atlas.findRegion("CYAN_dark");
 			case 3: return atlas.findRegion("GREEN");
+			case 13: return atlas.findRegion("GREEN_dark");
 			case 4: return atlas.findRegion("ORANGE");
+			case 14: return atlas.findRegion("ORANGE_dark");
 			case 5: return atlas.findRegion("PURPLE");
+			case 15: return atlas.findRegion("PURPLE_dark");
 			case 6: return atlas.findRegion("RED");
+			case 16: return atlas.findRegion("RED_dark");
 			case 7: return atlas.findRegion("YELLOW");
+			case 17: return atlas.findRegion("YELLOW_dark");
+			
 			case 10: return atlas.findRegion("projection");
 		}
 		return null;
@@ -180,6 +227,7 @@ public class GameScreen implements Screen{
 	
 	@Override
 	public void render(float delta) {
+		
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		main.act(Gdx.graphics.getDeltaTime());
 		
@@ -228,7 +276,7 @@ public class GameScreen implements Screen{
 			
 		}
 		if(holding.type != null) {
-			holding.setXY(HOLDPOSX, getWheight()-250);
+			holding.setXY(HOLDPOSX, getWheight()-280);
 			holding.Draw(main.getBatch(), WIDTH, getTexture(holding.color));
 		}
 		next1.setXY(SCOREPOSX, nextblockposY);
@@ -242,9 +290,10 @@ public class GameScreen implements Screen{
 		
 		main.getBatch().end();
 		main.draw();
-		
+		rate.update();
+		rate.render();
 		//--------------------------------------------
-		
+		if(!GameOver) {
 		if(Gdx.input.isKeyJustPressed(Settings.MoveLeft)) {
 			a.moveLeft(Mesh);
 		}
@@ -268,13 +317,13 @@ public class GameScreen implements Screen{
 		if(Gdx.input.isKeyJustPressed(Settings.Hold) && !block_hold) {
 			block_hold = true;
 			String temp = holding.type;
-			holding.setFigure(a.type, Mesh, 0);
+			holding.setFigure(a.type, Mesh, 0, true);
 			a.UnDraw(Mesh);
 			if(temp != null) {
-				a.setFigure(temp, Mesh, 1);
+				a.setFigure(temp, Mesh, 1, false);
 			}
 			else {
-			a.setFigure(next1.type, Mesh, 1);
+			a.setFigure(next1.type, Mesh, 1, false);
 			next1 = next2;
 			next2 = next3;
 			next3 = next4;
@@ -282,26 +331,37 @@ public class GameScreen implements Screen{
 			}
 		}
 		if(Gdx.input.isKeyJustPressed(Settings.Pause)) {
-			game.setScreen(new PauseScreen(game, thisGame));
+			game.setScreen(new Animations(this, new PauseScreen(game, this), game, 0.1f));
 			
 		}
-		if(TimeUtils.nanoTime() - dropTime > dropTimeSpeed) {
+		if(TimeUtils.nanoTime() - dropTime > dropTimeSpeed - level*dropTimeSpeed/100) {
 			if(a.bottom(Mesh)) { //Change figure, if I can`t move it to the bottom anymore or there is full lines
-				block_hold = false;
+				if(a.a.y == YMAX-WIDTH || a.b.y == YMAX-WIDTH || a.c.y == YMAX-WIDTH || a.d.y == YMAX-WIDTH
+					|| a.a.y == YMAX || a.b.y == YMAX || a.c.y == YMAX || a.d.y == YMAX) {
+					game.setScreen(new Animations(this, new GameOverScreen(game, score), game, 0.01f));
+					GameOver = true;
+				}
+				else {
+				if(block_hold) { 
+					block_hold = false;
+					holding.color-=10;
+				}
 				CheckLines();
-				a.setFigure(next1.type, Mesh, 1);
+				a.setFigure(next1.type, Mesh, 1, false);
 				next1 = next2;
 				next2 = next3;
 				next3 = next4;
 				next4 = GenerateBlock(next3.type, 0);
 				dropTime = TimeUtils.nanoTime();
 				if(dropTimeSpeed > 1000000)
-					dropTimeSpeed -= 100000;
+					dropTimeSpeed -= 1000000;
+				}
 			}
 			else {
 				a.moveDown(Mesh);
 				dropTime = TimeUtils.nanoTime();
 			}
+		}
 		}
 	}
 	
