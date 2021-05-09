@@ -7,28 +7,18 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-//import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
@@ -54,7 +44,7 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen{
 	public MainMenuScreen(final TetrisGDX game, final Assets assets) {
 		this.game = game;
 		this.assets = assets;
-		SaveScreen(this);
+		thisScreen = this;
 		main = new Stage();
 		Gdx.input.setInputProcessor(main);
 		table = new Table();
@@ -69,15 +59,11 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen{
 		skin.add("default", new LabelStyle(new BitmapFont(), Color.WHITE));
 		skin.add("default", new TextFieldStyle(new BitmapFont(), Color.WHITE, null, null, null));
 		
-		//background = new Texture(Gdx.files.internal("backgrounds2.png"));
-		//logo = new Texture(Gdx.files.internal("tetris.png"));
 		Label blankField = new Label("", skin);
 	    
 	    font = new BitmapFont();
-	    //buttonAtlas = new TextureAtlas(Gdx.files.internal("button.pack"));
 	    button = new Skin();
 	    button.addRegions(assets.manager.get(Assets.Buttons));
-	    //button.addRegions(buttonAtlas);
 	    
 	    textButtonStyle = new TextButtonStyle();
 	    textButtonStyle.font = font;
@@ -86,18 +72,9 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen{
 	    textButtonStyle.over = button.getDrawable("hover");
 	    
 	    start = new TextButton("Start the game!", textButtonStyle);
-	    settings = new TextButton("Settings (Not working)", textButtonStyle);
+	    settings = new TextButton("Settings", textButtonStyle);
 	    exit = new TextButton("Exit", textButtonStyle);
 	    score = new TextButton("Score Board", textButtonStyle);
-	    
-	    //start.setSize(300, 100);
-	    //start.setX(0);
-	    //start.setY(0);
-	    
-	    //main.addActor(start);
-	    
-	    //Label sample = new Label("teststststst", skin);
-	    //table.add(sample).row();
 	    
 	    table.add(blankField).height(600).row();
 	    table.add(start).width(300).height(50).row();
@@ -113,7 +90,7 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen{
 	    start.addListener(new ClickListener() {
 	        @Override
 	        public void clicked(InputEvent event, float x, float y) {
-	    	    game.setScreen(new Animations(thisScreen, new GameScreen(game, assets), game, 0.02f));
+	    	    game.setScreen(new Animations(thisScreen, new GameScreen(game, assets, new Settings()), game, 0.02f));
 	        	super.clicked(event, x, y);
 	        }
 	    });
@@ -127,7 +104,7 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen{
 	    settings.addListener(new ClickListener() {
 	        @Override
 	        public void clicked(InputEvent event, float x, float y) {
-	    	    game.setScreen(new Animations(thisScreen, new SettingsScreen(game, assets), game, 0.02f));
+	    	    game.setScreen(new Animations(thisScreen, new SettingsScreen(game, assets, new Settings()), game, 0.02f));
 	        	super.clicked(event, x, y);
 	        }
 	    });
@@ -140,10 +117,6 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen{
 	        }
 	    });
 
-	}
-	
-	public void SaveScreen(MainMenuScreen screen) {
-		thisScreen = screen;
 	}
 	
 	@Override

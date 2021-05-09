@@ -3,32 +3,20 @@ package com.gdx.tetris;
 import java.util.Stack;
 
 import com.badlogic.gdx.Gdx;
-//import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.TextureArray;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
-//import com.badlogic.gdx.math.Rectangle;
-//import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
-//import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 public class GameScreen implements Screen{
 	//Variables
@@ -56,6 +44,7 @@ public class GameScreen implements Screen{
 	private float bgAlpha = 1;
 	private boolean block_hold = false;
 	private boolean GameOver = false;
+	public boolean unPaused = false;
 	private int score = 0;
 	private int lines = 0;
 	private int level = 0, level_copy = 0;
@@ -73,25 +62,18 @@ public class GameScreen implements Screen{
 	//--------------------
 	TextField hold, sc, nb, ln, lvl;
 	Assets assets;
+	Settings settings;
 	
-	
-	public GameScreen(final TetrisGDX game, final Assets assets) {
+	public GameScreen(final TetrisGDX game, final Assets assets, final Settings settings) {
 		this.game = game;
 		this.assets = assets;
+		this.settings = settings;
 		main = new Stage();
 		
 		music = Gdx.audio.newMusic(Gdx.files.internal("audio.mp3"));
 		music.setLooping(true);
 		rate = new FrameRate();
-		
-		//background = new Texture [7];
-		//background[0] = new Texture(Gdx.files.internal("bg1.jpg"));
-		//background[1] = new Texture(Gdx.files.internal("bg2.jpg"));
-		//background[2] = new Texture(Gdx.files.internal("bg3.jpg"));
-		//background[3] = new Texture(Gdx.files.internal("bg4.jpg"));
-		//background[4] = new Texture(Gdx.files.internal("bg5.jpg"));
-		//background[5] = new Texture(Gdx.files.internal("bg6.jpg"));
-		//background[6] = new Texture(Gdx.files.internal("bg7.jpg"));
+
 		bg_n = 0;
 		
 		//Generating blocks
@@ -130,6 +112,8 @@ public class GameScreen implements Screen{
 		main.addActor(lvl);
 		
 		rmLines = new Stack<Integer> ();
+		
+		music.play();
 	}	
 	
 	
@@ -224,7 +208,6 @@ public class GameScreen implements Screen{
 	public void show() {
 		// start the playback of the background music
 		// when the screen is shown
-		//music.play();
 	}
 
 	private TextureRegion getTexture(int color) {
@@ -319,33 +302,37 @@ public class GameScreen implements Screen{
 	}
 	
 	public void inputHandle() {
-		if(Gdx.input.isKeyJustPressed(Settings.MoveLeft)) {
+		if(unPaused) {
+			unPaused = false;
+			music.play();
+		}
+		if(Gdx.input.isKeyJustPressed(settings.MoveLeft)) {
 			a.moveLeft(Mesh);
 		}
 		
-		if(Gdx.input.isKeyPressed(Settings.MoveDown) && TimeUtils.nanoTime() - lastClickTime > 60000000) {
+		if(Gdx.input.isKeyPressed(settings.MoveDown) && TimeUtils.nanoTime() - lastClickTime > 60000000) {
 			a.moveDown(Mesh);
 			lastClickTime = TimeUtils.nanoTime();
 		}
 		
-		if(Gdx.input.isKeyJustPressed(Settings.MoveRight)) {
+		if(Gdx.input.isKeyJustPressed(settings.MoveRight)) {
 			a.moveRight(Mesh);
 		}
 		
-		if(Gdx.input.isKeyJustPressed(Settings.Drop) && !a.bottom(Mesh)) {
+		if(Gdx.input.isKeyJustPressed(settings.Drop) && !a.bottom(Mesh)) {
 			a.Drop(Mesh);
 			dropTime = TimeUtils.nanoTime()-700000000;
 		}
 		
-		if(Gdx.input.isKeyJustPressed(Settings.RotLeft)) {
+		if(Gdx.input.isKeyJustPressed(settings.RotLeft)) {
 			a.test_rotation(true, Mesh);
 		}
 		
-		if(Gdx.input.isKeyJustPressed(Settings.RotRight)) {
+		if(Gdx.input.isKeyJustPressed(settings.RotRight)) {
 			a.test_rotation(false, Mesh);
 		}
 		
-		if(Gdx.input.isKeyJustPressed(Settings.Hold) && !block_hold) {
+		if(Gdx.input.isKeyJustPressed(settings.Hold) && !block_hold) {
 			block_hold = true;
 			String temp = holding.type;
 			holding.setFigure(a.type, Mesh, 0, true);
@@ -362,8 +349,9 @@ public class GameScreen implements Screen{
 			}
 		}
 		
-		if(Gdx.input.isKeyJustPressed(Settings.Pause)) {
-			game.setScreen(new Animations(this, new PauseScreen(game, this, assets), game, 0.1f));
+		if(Gdx.input.isKeyJustPressed(settings.Pause)) {
+			music.pause();
+			game.setScreen(new Animations(this, new PauseScreen(game, this, assets, settings), game, 0.1f));
 			
 		}
 		
@@ -371,6 +359,7 @@ public class GameScreen implements Screen{
 			if(a.bottom(Mesh)) { //Change figure, if I can`t move it to the bottom anymore or there is full lines
 				if(a.a.y == YMAX-WIDTH || a.b.y == YMAX-WIDTH || a.c.y == YMAX-WIDTH || a.d.y == YMAX-WIDTH
 					|| a.a.y == YMAX || a.b.y == YMAX || a.c.y == YMAX || a.d.y == YMAX) {
+					music.stop();
 					game.setScreen(new Animations(this, new GameOverScreen(game, score, assets), game, 0.01f));
 					GameOver = true;
 				}

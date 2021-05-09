@@ -1,0 +1,8 @@
+RotLeft: 54
+RotRight: 52
+MoveLeft: 29
+MoveRight: 32
+MoveDown: 47
+Drop: 62
+Hold: 59
+Pause: 111

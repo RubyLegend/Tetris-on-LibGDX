@@ -2,7 +2,6 @@ package com.gdx.tetris;
 
 import java.io.File;  // Import the File class
 import java.io.IOException;  // Import the IOException class to handle errors
-import java.io.FileNotFoundException;  // Import this class to handle errors
 import java.util.Scanner; // Import the Scanner class to read text files
 
 
@@ -11,14 +10,10 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -46,7 +41,7 @@ public class ScoreBoardScreen implements Screen{
 	public ScoreBoardScreen(final TetrisGDX game, final MainMenuScreen prevScreen, final Assets assets) {
 		this.game = game;
 		this.assets = assets;
-		SaveScreen(this);
+		thisScreen = this;
 		main = new Stage();
 		Gdx.input.setInputProcessor(main);
 		table = new Table();
@@ -110,10 +105,6 @@ public class ScoreBoardScreen implements Screen{
 	          e.printStackTrace();
 	    }
 	    
-	}
-	
-	public void SaveScreen(Screen screen) {
-		thisScreen = screen;
 	}
 	
 	@Override

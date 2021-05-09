@@ -2,22 +2,20 @@ package com.gdx.tetris;
 
 import java.io.File;  // Import the File class
 import java.io.IOException;  // Import the IOException class to handle errors
-import java.io.FileNotFoundException;  // Import this class to handle errors
 import java.io.FileWriter;
 import java.util.Scanner; // Import the Scanner class to read text files
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 
 public class Settings {
 	//Settings for the game
-	static int RotLeft = Keys.Z;
-	static int RotRight = Keys.X;
-	static int MoveLeft = Keys.A;
-	static int MoveRight = Keys.D;
-	static int MoveDown = Keys.S;
-	static int Drop = Keys.SPACE;
-	static int Hold = Keys.SHIFT_LEFT;
-	static int Pause = Keys.ESCAPE;
+	int RotLeft;
+	int RotRight;
+	int MoveLeft;
+	int MoveRight;
+	int MoveDown;
+	int Drop;
+	int Hold;
+	int Pause;
 	//-----------------------
 	static public int WIDTH = 40; //Width of a block
 	static public int ROWS = 23; //Number of rows
@@ -39,9 +37,17 @@ public class Settings {
 	            			 + "Drop: 62\n"
 	            		     + "Hold: 59\n"
 	            			 + "Pause: 111\n"); //Writing default settings
+	            RotLeft = Keys.Z;
+	            RotRight = Keys.X;
+	            MoveLeft = Keys.A;
+	            MoveRight = Keys.D;
+	            MoveDown = Keys.S;
+	            Drop = Keys.SPACE;
+	            Hold = Keys.SHIFT_LEFT;
+	            Pause = Keys.ESCAPE;
 	            myWriter.close();
 	          } else {
-	            System.out.println("Settings: File already exists.");
+	            System.out.println("Settings: File already exists. " + settings.getAbsolutePath());
 	            Scanner myReader = new Scanner(settings);
 	            while (myReader.hasNextLine()) {
 	              String data = myReader.nextLine();
@@ -81,6 +87,26 @@ public class Settings {
 	            }
 	            myReader.close();
 	          }
+	    } catch (IOException e) {
+	          System.out.println("Settings: An error occurred.");
+	          e.printStackTrace();
+	    }
+	}
+	
+	public void SaveSettings() {
+		try {
+	        File settings = new File("settings.txt");
+	        settings.createNewFile();
+	        FileWriter myWriter = new FileWriter(settings.getAbsolutePath());
+            myWriter.write("RotLeft: " + RotLeft
+            			 + "\nRotRight: " + RotRight
+            		     + "\nMoveLeft: " + MoveLeft
+            			 + "\nMoveRight: " + MoveRight
+            		     + "\nMoveDown: " + MoveDown
+            			 + "\nDrop: " + Drop
+            		     + "\nHold: " + Hold
+            			 + "\nPause: " + Pause + '\n'); //Writing default settings
+            myWriter.close();
 	    } catch (IOException e) {
 	          System.out.println("Settings: An error occurred.");
 	          e.printStackTrace();

@@ -3,13 +3,9 @@ package com.gdx.tetris;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -33,12 +29,14 @@ public class PauseScreen implements Screen {
 	Skin skin, button;
 	FrameRate rate;
 	Assets assets;
+	Settings settings;
 	
-	public PauseScreen(final TetrisGDX game, final GameScreen g2, final Assets assets) {
+	public PauseScreen(final TetrisGDX game, final GameScreen g2, final Assets assets, final Settings settings) {
 		this.game = game;
 		this.g2 = g2;
 		this.assets = assets;
-		SaveScreen(this);
+		this.settings = settings;
+		thisScreen = this;
 		main = new Stage();
 		Gdx.input.setInputProcessor(main);
 		table = new Table();
@@ -79,9 +77,7 @@ public class PauseScreen implements Screen {
 	    menu.addListener(new ClickListener() {
 	        @Override
 	        public void clicked(InputEvent event, float x, float y) {
-	        	MainMenuScreen ms = new MainMenuScreen(game, assets);
-	    		ms.SaveScreen(ms);
-	    		game.setScreen(new Animations(thisScreen, ms, game, 0.05f));
+	    		game.setScreen(new Animations(thisScreen, new MainMenuScreen(game, assets), game, 0.05f));
 	    		super.clicked(event, x, y);
 	        }
 	    });
@@ -90,11 +86,7 @@ public class PauseScreen implements Screen {
 	    
 	    //background = new Texture(Gdx.files.internal("bg1.jpg"));
 	}
-	
-	public void SaveScreen (Screen screen) {
-		thisScreen = screen;
-	}
-	
+
 	@Override
 	public void show() {
 		// TODO Auto-generated method stub
@@ -111,6 +103,11 @@ public class PauseScreen implements Screen {
 		main.act(Gdx.graphics.getDeltaTime());
 		rate.update();
 		rate.render();
+		
+		if(Gdx.input.isKeyJustPressed(settings.Pause)) {
+			g2.unPaused = true;
+			game.setScreen(new Animations(thisScreen, g2, game, 0.1f));
+		}
 	}
 
 	@Override

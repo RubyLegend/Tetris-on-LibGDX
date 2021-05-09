@@ -4,30 +4,21 @@ import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;    
 import java.io.File;  // Import the File class
 import java.io.IOException;  // Import the IOException class to handle errors
-import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.io.FileNotFoundException;  // Import this class to handle errors
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.util.Scanner; // Import the Scanner class to read text files
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
@@ -40,7 +31,6 @@ public class GameOverScreen implements Screen {
 	Screen thisScreen;
 	Stage main;
 	Table table;
-	TextureAtlas buttonAtlas;
 	TextButtonStyle textButtonStyle;
 	Button restart, menu;
 	BitmapFont font;
@@ -53,14 +43,14 @@ public class GameOverScreen implements Screen {
 	public GameOverScreen(final TetrisGDX game, int score, final Assets assets) {
 		this.game = game;
 		this.assets = assets;
-		SaveScreen(this);
+		thisScreen = this;
 		main = new Stage();
 		Gdx.input.setInputProcessor(main);
 		table = new Table();
 		table.setFillParent(true);
 		main.addActor(table);
 		rate = new FrameRate();
-		table.setDebug(true);
+		//table.setDebug(true);
 		
 		skin = new Skin();
 		skin.add("default", new LabelStyle(new BitmapFont(), Color.WHITE));
@@ -69,10 +59,9 @@ public class GameOverScreen implements Screen {
 		Label blankField = new Label("", skin);
 	    
 	    font = new BitmapFont();
-	    buttonAtlas = new TextureAtlas(Gdx.files.internal("button.pack"));
+
 	    button = new Skin();
 	    button.addRegions(assets.manager.get(Assets.Buttons));
-	    //button.addRegions(buttonAtlas);
 	    textButtonStyle = new TextButtonStyle();
 	    textButtonStyle.font = font;
 	    textButtonStyle.up = button.getDrawable("normal");
@@ -89,7 +78,7 @@ public class GameOverScreen implements Screen {
 	    restart.addListener(new ClickListener() {
 	        @Override
 	        public void clicked(InputEvent event, float x, float y) {
-	        	game.setScreen(new Animations(thisScreen, new GameScreen(game, assets), game, 0.02f));
+	        	game.setScreen(new Animations(thisScreen, new GameScreen(game, assets, new Settings()), game, 0.02f));
 				dispose();
 	    		super.clicked(event, x, y);
 	        }
@@ -100,16 +89,13 @@ public class GameOverScreen implements Screen {
 	    menu.addListener(new ClickListener() {
 	        @Override
 	        public void clicked(InputEvent event, float x, float y) {
-	        	MainMenuScreen ms = new MainMenuScreen(game, assets);
-	    		ms.SaveScreen(ms);
-	    		game.setScreen(new Animations(thisScreen, ms, game, 0.05f));
+
+	    		game.setScreen(new Animations(thisScreen, new MainMenuScreen(game, assets), game, 0.05f));
 	    		super.clicked(event, x, y);
 	        }
 	    });
 	    table.add(blankField).height(20).row();
 	    table.add(menu).width(300).height(100);
-	    
-	    //background = new Texture(Gdx.files.internal("bg1.jpg"));
 	    
 	    try {
 	        File scores = new File("scores.txt"), 
@@ -160,10 +146,6 @@ public class GameOverScreen implements Screen {
 	          e.printStackTrace();
 	    }
 	    
-	}
-	
-	public void SaveScreen(Screen screen) {
-		thisScreen = screen;
 	}
 	
 	@Override
