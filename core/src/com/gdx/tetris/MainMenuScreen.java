@@ -35,20 +35,25 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class MainMenuScreen extends ApplicationAdapter implements Screen{
 	final TetrisGDX game;
-	Screen thisScreen;
+	Assets assets;
+	MainMenuScreen thisScreen;
 	Stage main;
 	Table table;
+	Texture background, logo;
 	TextureAtlas atlas, buttonAtlas;
 	TextButtonStyle textButtonStyle;
-	Button start;
+	Button start, settings, score, exit;
 	BitmapFont font;
 	OrthographicCamera camera;
 	Skin skin, button;
-	float alpha = 0;
 	FrameRate rate;
+	//----------------------
+	boolean _exit = false;
+	float alpha = 1f;
 	
-	public MainMenuScreen(final TetrisGDX game) {
+	public MainMenuScreen(final TetrisGDX game, final Assets assets) {
 		this.game = game;
+		this.assets = assets;
 		SaveScreen(this);
 		main = new Stage();
 		Gdx.input.setInputProcessor(main);
@@ -56,6 +61,7 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen{
 		table.setFillParent(true);
 		main.addActor(table);
 		rate = new FrameRate();
+		
 		//table.setDebug(true);
 		atlas = new TextureAtlas(Gdx.files.internal("textures.pack"));
 		
@@ -63,35 +69,80 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen{
 		skin.add("default", new LabelStyle(new BitmapFont(), Color.WHITE));
 		skin.add("default", new TextFieldStyle(new BitmapFont(), Color.WHITE, null, null, null));
 		
+		//background = new Texture(Gdx.files.internal("backgrounds2.png"));
+		//logo = new Texture(Gdx.files.internal("tetris.png"));
 		Label blankField = new Label("", skin);
 	    
 	    font = new BitmapFont();
-	    buttonAtlas = new TextureAtlas(Gdx.files.internal("button.pack"));
+	    //buttonAtlas = new TextureAtlas(Gdx.files.internal("button.pack"));
 	    button = new Skin();
-	    button.addRegions(buttonAtlas);
+	    button.addRegions(assets.manager.get(Assets.Buttons));
+	    //button.addRegions(buttonAtlas);
+	    
 	    textButtonStyle = new TextButtonStyle();
 	    textButtonStyle.font = font;
 	    textButtonStyle.up = button.getDrawable("normal");
 	    textButtonStyle.down = button.getDrawable("pressed");
 	    textButtonStyle.over = button.getDrawable("hover");
+	    
 	    start = new TextButton("Start the game!", textButtonStyle);
+	    settings = new TextButton("Settings (Not working)", textButtonStyle);
+	    exit = new TextButton("Exit", textButtonStyle);
+	    score = new TextButton("Score Board", textButtonStyle);
+	    
+	    //start.setSize(300, 100);
+	    //start.setX(0);
+	    //start.setY(0);
+	    
+	    //main.addActor(start);
+	    
+	    //Label sample = new Label("teststststst", skin);
+	    //table.add(sample).row();
 	    
 	    table.add(blankField).height(600).row();
-	    table.add(blankField).width(60);
-	    table.add(start).width(300).height(100);
-
+	    table.add(start).width(300).height(50).row();
+	    table.add(blankField).height(20).row();
+	    table.add(score).width(300).height(50).row();
+	    table.add(blankField).height(20).row();
+	    table.add(settings).width(300).height(50).row();
+	    table.add(blankField).height(20).row();
+	    table.add(exit).width(300).height(50).row();
+	    
 	    main.addAction(Actions.sequence(Actions.alpha(0), Actions.fadeIn(1.5f)));
+	    
 	    start.addListener(new ClickListener() {
 	        @Override
 	        public void clicked(InputEvent event, float x, float y) {
-	    	    game.setScreen(new Animations(thisScreen, new GameScreen(game), game, 0.02f));
+	    	    game.setScreen(new Animations(thisScreen, new GameScreen(game, assets), game, 0.02f));
+	        	super.clicked(event, x, y);
+	        }
+	    });
+	    score.addListener(new ClickListener() {
+	        @Override
+	        public void clicked(InputEvent event, float x, float y) {
+	    	    game.setScreen(new Animations(thisScreen, new ScoreBoardScreen(game, thisScreen, assets), game, 0.02f));
+	        	super.clicked(event, x, y);
+	        }
+	    });
+	    settings.addListener(new ClickListener() {
+	        @Override
+	        public void clicked(InputEvent event, float x, float y) {
+	    	    game.setScreen(new Animations(thisScreen, new SettingsScreen(game, assets), game, 0.02f));
+	        	super.clicked(event, x, y);
+	        }
+	    });
+	    exit.addListener(new ClickListener() {
+	        @Override
+	        public void clicked(InputEvent event, float x, float y) {
+	    	    _exit = true;
+	    	    main.addAction(Actions.fadeOut(1f));
 	        	super.clicked(event, x, y);
 	        }
 	    });
 
 	}
 	
-	public void SaveScreen(Screen screen) {
+	public void SaveScreen(MainMenuScreen screen) {
 		thisScreen = screen;
 	}
 	
@@ -100,11 +151,18 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen{
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		main.act(Gdx.graphics.getDeltaTime());
 		main.getBatch().begin();
-		main.getBatch().draw(atlas.findRegion("tetris"), 0, 0, 1920, 1080);
+		main.getBatch().draw(assets.manager.get(Assets.Background).findRegion("bg1"), 0, 0, 1920, 1080);
+		main.getBatch().draw(assets.manager.get(Assets.logo), (Gdx.graphics.getWidth()-assets.manager.get(Assets.logo).getWidth())/2, Gdx.graphics.getHeight()/2);
 		main.getBatch().end();
 		main.draw();
 		rate.update();
 		rate.render();
+		if(_exit) {
+			alpha-=0.01f;
+			if(alpha <= 0) {
+				Gdx.app.exit();
+			}
+		}
 	}
 
 	

@@ -1,5 +1,7 @@
 package com.gdx.tetris;
 
+import java.util.Stack;
+
 import com.badlogic.gdx.Gdx;
 //import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
@@ -9,6 +11,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.TextureArray;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -18,10 +21,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 //import com.badlogic.gdx.math.Rectangle;
 //import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -31,16 +34,6 @@ public class GameScreen implements Screen{
 	//Variables
 	final TetrisGDX game;
 	Music music;
-	//Texture background, mesh, projection, blue, yellow, orange, red, cyan, purple, green;
-	Figure a, holding, next1, next2, next3, next4;
-	private long lastClickTime = 0, dropTime = 0;
-	OrthographicCamera camera;
-	private boolean block_hold = false;
-	private int score = 0;
-	private int lines = 0;
-	private int level = 0;
-	int dropTimeSpeed = 700000000;
-	boolean firstboot = true;
 	//Settings for the game
 	static public int WIDTH = Settings.WIDTH; //Width of a block
 	static public int ROWS = Settings.ROWS +2; //Number of rows
@@ -51,32 +44,56 @@ public class GameScreen implements Screen{
 	static public int YMAX = YMIN + (ROWS-1)*WIDTH;
 	static public int XMAX = XMIN + (COLS-1)*WIDTH;
 	private int SCOREPOSX = XMAX + 100, HOLDPOSX = XMIN - 200, nextblockposY;
-	public int [][] Mesh = new int[COLS][ROWS];
+	public int [][] Mesh = new int[COLS][ROWS], newMesh;
 	//Window settings
 	private static int Wwidth = 1920;
 	private static int Wheight = 1080;
 	//--------------------
+	Figure a, holding, next1, next2, next3, next4;
+	private Stack<Integer> rmLines;
+	private int rk = -1, rl = COLS-1;
+	private long lastClickTime = 0, dropTime = 0, picture_change = 0;
+	private float bgAlpha = 1;
+	private boolean block_hold = false;
+	private boolean GameOver = false;
+	private int score = 0;
+	private int lines = 0;
+	private int level = 0, level_copy = 0;
+	private int bg_n;
+	int dropTimeSpeed = 700000000;
+	//--------------------
 	Stage main;
-	Table table;
 	TextureAtlas atlas;
 	TextButtonStyle textButtonStyle;
 	Button start;
 	BitmapFont font;
 	Skin skin;
 	FrameRate rate;
+	//Texture [] background;
 	//--------------------
 	TextField hold, sc, nb, ln, lvl;
-	boolean GameOver = false;
+	Assets assets;
 	
 	
-	public GameScreen(final TetrisGDX game) {
+	public GameScreen(final TetrisGDX game, final Assets assets) {
 		this.game = game;
+		this.assets = assets;
 		main = new Stage();
-		table = new Table();
-		// create the camera and the SpriteBatch
+		
 		music = Gdx.audio.newMusic(Gdx.files.internal("audio.mp3"));
 		music.setLooping(true);
 		rate = new FrameRate();
+		
+		//background = new Texture [7];
+		//background[0] = new Texture(Gdx.files.internal("bg1.jpg"));
+		//background[1] = new Texture(Gdx.files.internal("bg2.jpg"));
+		//background[2] = new Texture(Gdx.files.internal("bg3.jpg"));
+		//background[3] = new Texture(Gdx.files.internal("bg4.jpg"));
+		//background[4] = new Texture(Gdx.files.internal("bg5.jpg"));
+		//background[5] = new Texture(Gdx.files.internal("bg6.jpg"));
+		//background[6] = new Texture(Gdx.files.internal("bg7.jpg"));
+		bg_n = 0;
+		
 		//Generating blocks
 		holding = new Figure();
 		a = GenerateBlock("none", 1);
@@ -111,8 +128,8 @@ public class GameScreen implements Screen{
 		main.addActor(nb);
 		main.addActor(ln);
 		main.addActor(lvl);
-		main.getRoot().getColor().a = 0; 
-		main.addAction(Actions.fadeIn(1f));
+		
+		rmLines = new Stack<Integer> ();
 	}	
 	
 	
@@ -143,28 +160,32 @@ public class GameScreen implements Screen{
 	}
 	
 	private boolean CheckLines() { //Check for full lines and delete it
-		int [][] newMesh = new int [COLS][ROWS];
+		newMesh = new int [COLS][ROWS];
 		int k = 0;
 		int tline = 0;
 		boolean deleted = false;
+		boolean isLine;
 		for(int i = 0; i < ROWS; i++) {
-			boolean isLine = true;
+			isLine = true;
 			for(int j = 0; j < COLS; j++) {
 				if(Mesh[j][i] == 0 || Mesh[j][i] == 10)
 					isLine = false;
 			}
-			if(!isLine) { //Remove line and shift all blocks down
+			if(!isLine) {
 				for(int j = 0; j < COLS; j++) {
 					newMesh[j][k] = Mesh[j][i];
 				}
 				k++;
 			}
-			else {
+			else {  //Remove line and shift all blocks down (simply skips it from copying to new mesh)
 				tline++;
+				rmLines.push(i); //Push it to the stack of removing blocks
+				
 			}
 		}
 		switch(tline) {
 		case 0:{
+			Mesh = newMesh;
 			break;
 		}
 		case 1: {
@@ -189,11 +210,14 @@ public class GameScreen implements Screen{
 			lines -= 10;
 			level++;
 		}
+		level_copy = level;
+		if(level >= 30) {
+			level_copy = 29;
+		}
 		sc.setText("Score : " + score);
 		ln.setText("Lines : " + lines);
 		lvl.setText("Level : " + level);
 		deleted = true;
- 		Mesh = newMesh;
 		return deleted;
 	}
 	@Override
@@ -225,21 +249,9 @@ public class GameScreen implements Screen{
 		return null;
 	}
 	
-	@Override
-	public void render(float delta) {
-		
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		main.act(Gdx.graphics.getDeltaTime());
-		
-		//-------------------------------------
-		main.getBatch().begin();
-		
-		//if(alpha < 1) {
-		//	alpha += 0.02f;
-		//	game.batch.setColor(255,255,255,alpha);
-		//	game.font.setColor(255,255,255,alpha);
-		//}    
-		main.getBatch().draw(atlas.findRegion("background"), 0, 0, getWwidth(), getWheight());
+	public void drawMesh() {
+		//Test draw
+		//main.getBatch().draw(atlas.findRegion("BLUE"), 0, 0, WIDTH, WIDTH);
 		for(int i = 0; i < Mesh.length; i++) {
 			for(int j = 0; j < Mesh[i].length; j++) {
 				switch (Mesh[i][j]) {
@@ -275,6 +287,145 @@ public class GameScreen implements Screen{
 			}
 			
 		}
+	}
+	
+	public void drawBackGround() {
+		if(picture_change != 1000) {
+			main.getBatch().setColor(255, 255, 255, bgAlpha);
+			main.getBatch().draw(assets.manager.get(Assets.Background).findRegion("bg"+(bg_n+1)), 0, 0, getWwidth(), getWheight());
+			main.getBatch().setColor(255, 255, 255, 1);
+			picture_change+=1;
+			if(picture_change == 1000) {
+				bgAlpha = 0;
+				bg_n++;
+				if(bg_n > 6) bg_n-=7;
+			}
+		}
+		else {
+			bgAlpha += 1/120f;
+			if(bgAlpha >= 1f) {
+				picture_change = 0;
+				bgAlpha = 1f;
+			}
+			if(bg_n-1 == -1)
+				main.getBatch().draw(assets.manager.get(Assets.Background).findRegion("bg7"), 0, 0, getWwidth(), getWheight());
+			else
+				main.getBatch().draw(assets.manager.get(Assets.Background).findRegion("bg" + (bg_n)), 0, 0, getWwidth(), getWheight());
+			main.getBatch().setColor(255, 255, 255, bgAlpha);
+			main.getBatch().draw(assets.manager.get(Assets.Background).findRegion("bg" + (bg_n+1)), 0, 0, getWwidth(), getWheight());
+			main.getBatch().setColor(255, 255, 255, 1);
+			
+		}
+	}
+	
+	public void inputHandle() {
+		if(Gdx.input.isKeyJustPressed(Settings.MoveLeft)) {
+			a.moveLeft(Mesh);
+		}
+		
+		if(Gdx.input.isKeyPressed(Settings.MoveDown) && TimeUtils.nanoTime() - lastClickTime > 60000000) {
+			a.moveDown(Mesh);
+			lastClickTime = TimeUtils.nanoTime();
+		}
+		
+		if(Gdx.input.isKeyJustPressed(Settings.MoveRight)) {
+			a.moveRight(Mesh);
+		}
+		
+		if(Gdx.input.isKeyJustPressed(Settings.Drop) && !a.bottom(Mesh)) {
+			a.Drop(Mesh);
+			dropTime = TimeUtils.nanoTime()-700000000;
+		}
+		
+		if(Gdx.input.isKeyJustPressed(Settings.RotLeft)) {
+			a.test_rotation(true, Mesh);
+		}
+		
+		if(Gdx.input.isKeyJustPressed(Settings.RotRight)) {
+			a.test_rotation(false, Mesh);
+		}
+		
+		if(Gdx.input.isKeyJustPressed(Settings.Hold) && !block_hold) {
+			block_hold = true;
+			String temp = holding.type;
+			holding.setFigure(a.type, Mesh, 0, true);
+			a.UnDraw(Mesh);
+			if(temp != null) {
+				a.setFigure(temp, Mesh, 1, false);
+			}
+			else {
+			a.setFigure(next1.type, Mesh, 1, false);
+			next1 = next2;
+			next2 = next3;
+			next3 = next4;
+			next4 = GenerateBlock(next3.type, 0);
+			}
+		}
+		
+		if(Gdx.input.isKeyJustPressed(Settings.Pause)) {
+			game.setScreen(new Animations(this, new PauseScreen(game, this, assets), game, 0.1f));
+			
+		}
+		
+		if(TimeUtils.nanoTime() - dropTime > dropTimeSpeed - level_copy*(dropTimeSpeed/30)) { //For speed of figures I using something similar to NES speed values
+			if(a.bottom(Mesh)) { //Change figure, if I can`t move it to the bottom anymore or there is full lines
+				if(a.a.y == YMAX-WIDTH || a.b.y == YMAX-WIDTH || a.c.y == YMAX-WIDTH || a.d.y == YMAX-WIDTH
+					|| a.a.y == YMAX || a.b.y == YMAX || a.c.y == YMAX || a.d.y == YMAX) {
+					game.setScreen(new Animations(this, new GameOverScreen(game, score, assets), game, 0.01f));
+					GameOver = true;
+				}
+				else {
+					if(block_hold) { 
+						block_hold = false;
+						holding.color-=10;
+					}
+					CheckLines();
+					a.setFigure(next1.type, newMesh, 1, false);
+					next1 = next2;
+					next2 = next3;
+					next3 = next4;
+					next4 = GenerateBlock(next3.type, 0);
+					dropTime = TimeUtils.nanoTime();
+				}
+			}
+			else {
+				a.moveDown(Mesh);
+				dropTime = TimeUtils.nanoTime();
+			}
+		}
+	}
+	
+	@Override
+	public void render(float delta) {
+		
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		main.act(Gdx.graphics.getDeltaTime());
+		
+		//-------------------------------------
+		main.getBatch().begin();
+		
+		if(rmLines.size() != 0 || rl != COLS - 1) { //While some lines are cleared
+			if(rk == -1 || rl == COLS - 1) {
+				rl = 0;
+				if(rmLines.size() != 0) rk = rmLines.pop();
+			}
+			else rl++;
+			
+			Mesh[rl][rk] = 0;
+			
+			if(rmLines.size() == 0 && rl == COLS - 1) {
+				Mesh = newMesh;
+			}
+			
+		}
+		
+		//Fade background picture
+		drawBackGround();
+		
+		drawMesh();
+		
+		
+		//Draw hold and next blocks
 		if(holding.type != null) {
 			holding.setXY(HOLDPOSX, getWheight()-280);
 			holding.Draw(main.getBatch(), WIDTH, getTexture(holding.color));
@@ -293,77 +444,15 @@ public class GameScreen implements Screen{
 		rate.update();
 		rate.render();
 		//--------------------------------------------
-		if(!GameOver) {
-		if(Gdx.input.isKeyJustPressed(Settings.MoveLeft)) {
-			a.moveLeft(Mesh);
+		
+		//Input handling
+		
+		if(!GameOver && rmLines.size() == 0 && rl == COLS - 1) { //Not a Game Over or removing lines script
+			inputHandle();
 		}
-		if(Gdx.input.isKeyPressed(Settings.MoveDown) && TimeUtils.nanoTime() - lastClickTime > 60000000) {
-			a.moveDown(Mesh);
-			lastClickTime = TimeUtils.nanoTime();
-		}
-		if(Gdx.input.isKeyJustPressed(Settings.MoveRight)) {
-			a.moveRight(Mesh);
-		}
-		if(Gdx.input.isKeyJustPressed(Settings.Drop) && !a.bottom(Mesh)) {
-			a.Drop(Mesh);
-			dropTime = TimeUtils.nanoTime()-700000000;
-		}
-		if(Gdx.input.isKeyJustPressed(Settings.RotLeft)) {
-			a.test_rotation(true, Mesh);
-		}
-		if(Gdx.input.isKeyJustPressed(Settings.RotRight)) {
-			a.test_rotation(false, Mesh);
-		}
-		if(Gdx.input.isKeyJustPressed(Settings.Hold) && !block_hold) {
-			block_hold = true;
-			String temp = holding.type;
-			holding.setFigure(a.type, Mesh, 0, true);
-			a.UnDraw(Mesh);
-			if(temp != null) {
-				a.setFigure(temp, Mesh, 1, false);
-			}
-			else {
-			a.setFigure(next1.type, Mesh, 1, false);
-			next1 = next2;
-			next2 = next3;
-			next3 = next4;
-			next4 = GenerateBlock(next3.type, 0);
-			}
-		}
-		if(Gdx.input.isKeyJustPressed(Settings.Pause)) {
-			game.setScreen(new Animations(this, new PauseScreen(game, this), game, 0.1f));
-			
-		}
-		if(TimeUtils.nanoTime() - dropTime > dropTimeSpeed - level*dropTimeSpeed/100) {
-			if(a.bottom(Mesh)) { //Change figure, if I can`t move it to the bottom anymore or there is full lines
-				if(a.a.y == YMAX-WIDTH || a.b.y == YMAX-WIDTH || a.c.y == YMAX-WIDTH || a.d.y == YMAX-WIDTH
-					|| a.a.y == YMAX || a.b.y == YMAX || a.c.y == YMAX || a.d.y == YMAX) {
-					game.setScreen(new Animations(this, new GameOverScreen(game, score), game, 0.01f));
-					GameOver = true;
-				}
-				else {
-				if(block_hold) { 
-					block_hold = false;
-					holding.color-=10;
-				}
-				CheckLines();
-				a.setFigure(next1.type, Mesh, 1, false);
-				next1 = next2;
-				next2 = next3;
-				next3 = next4;
-				next4 = GenerateBlock(next3.type, 0);
-				dropTime = TimeUtils.nanoTime();
-				if(dropTimeSpeed > 1000000)
-					dropTimeSpeed -= 1000000;
-				}
-			}
-			else {
-				a.moveDown(Mesh);
-				dropTime = TimeUtils.nanoTime();
-			}
-		}
-		}
+		
 	}
+	
 	
 	@Override
 	public void resize(int width, int height) {

@@ -22,12 +22,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class SettingsScreen implements Screen {
-	
+	final Assets assets;
 	final TetrisGDX game;
 	Stage main;
 	Table table;
-	Texture background;
-	TextureAtlas buttonAtlas;
+	//Texture background;
+	//TextureAtlas buttonAtlas;
 	TextButtonStyle textButtonStyle;
 	Button start;
 	BitmapFont font;
@@ -36,9 +36,35 @@ public class SettingsScreen implements Screen {
 	float alpha = 0;
 	FrameRate rate;
 	
-	public SettingsScreen(final TetrisGDX game) {
+	public SettingsScreen(final TetrisGDX game, final Assets assets) {
 		this.game = game;
+		this.assets = assets;
+		main = new Stage();
 		rate = new FrameRate();
+		Gdx.input.setInputProcessor(main);
+		table = new Table();
+		table.setFillParent(true);
+		main.addActor(table);
+		rate = new FrameRate();
+		table.setDebug(true);
+		
+		skin = new Skin();
+		skin.add("default", new LabelStyle(new BitmapFont(), Color.WHITE));
+	    	    
+	    font = new BitmapFont();
+	    //buttonAtlas = new TextureAtlas(Gdx.files.internal("button.pack"));
+	    button = new Skin();
+	    button.addRegions(assets.manager.get(Assets.Buttons));
+	    textButtonStyle = new TextButtonStyle();
+	    textButtonStyle.font = font;
+	    textButtonStyle.up = button.getDrawable("normal");
+	    textButtonStyle.down = button.getDrawable("pressed");
+	    textButtonStyle.over = button.getDrawable("hover");
+	    Label blankField = new Label("", skin);
+	    
+	    
+	    //background = new Texture(Gdx.files.internal("bg1.jpg"));
+		
 	}
 	
 	@Override
@@ -50,7 +76,13 @@ public class SettingsScreen implements Screen {
 	@Override
 	public void render(float delta) {
 		// TODO Auto-generated method stub
+		main.getBatch().begin();
+		main.getBatch().draw(assets.manager.get(Assets.Background).findRegion("bg1"), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		main.getBatch().end();
+		main.draw();
+		main.act(Gdx.graphics.getDeltaTime());
 		rate.update();
+		rate.render();
 		
 	}
 
