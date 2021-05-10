@@ -13,7 +13,6 @@ public class LoadingScreen implements Screen {
 	private boolean loaded = false;
 	public Assets assets = new Assets();
 	final TetrisGDX game;
-	int n = 0;
 	
 	public LoadingScreen(final TetrisGDX game) {
 		this.game = game;
@@ -42,11 +41,6 @@ public class LoadingScreen implements Screen {
 			//Assets have finished loading, change screen maybe?
 			game.setScreen(new Animations(this, new MainMenuScreen(game, assets), game, 0.02f));
 			//setScreen(new MainMenuScreen(this, assets));
-		}
-		else {
-			System.out.print(assets.manager.update());
-			System.out.println(n);
-			n++;
 		}
 		
 		main.getBatch().begin();
