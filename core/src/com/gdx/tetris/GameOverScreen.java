@@ -98,55 +98,55 @@ public class GameOverScreen implements Screen {
 	    table.add(menu).width(300).height(100);
 	    //Writing score
 	    try {
-	        File scores = new File("scores.txt"), 
-	        	 scores2 = new File("temp_scores.txt");
-	        //Create and open new temporary score file
-	        if (scores2.createNewFile()) {
-	            System.out.println("Scores2: File created: " + scores2.getName());
-	          } else {
-	            System.out.println("Scores2: File already exists.");
-	          }
-	       
-	        //Read data from prev score file                                              
-	        Scanner myReader = new Scanner(scores);                                       
-	        FileWriter myWriter = new FileWriter(scores2.getAbsolutePath());              
+	        File scores = new File("scores.txt");
+	        //Read data from prev score file                                                                                          
 	        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");   
-	        LocalDateTime now = LocalDateTime.now();                                      
-	        if(!scores.exists()) {
-		        int n = 0;
-		        boolean inserted = false;
-		        int [] sc = new int [50];
-	            while (myReader.hasNextLine() && n != 50) {
-	              String data = myReader.nextLine();
-	              //Starting from 23rd pos, read number to an array
-	              int thisScore = 0;
-	              for(int i = 29; i < data.length(); i++) {
-	            	  thisScore*=10;
-	            	  thisScore+=Character.getNumericValue(data.charAt(i));
-	              }
-	              sc[n] = thisScore;
-	              //------------------
-	              if(thisScore <= score && !inserted) {
-	            	  myWriter.write(dtf.format(now) + "   Score: " + score + "\n");
-	            	  inserted = true;
-	              }
-	              myWriter.write("Scores: " + data + '\n');
-	              System.out.println(data);
-	              n++;
-	            }
-	            myReader.close();
-		        
+	        LocalDateTime now = LocalDateTime.now(); 
+		    int n = 0;
+		    int [] sc = new int [50];
+	        if(scores.exists()) {
+			    Scanner myReader = new Scanner(scores);   
+			    boolean inserted = false;
+		        while (myReader.hasNextLine() && n != 50) {
+		          String data = myReader.nextLine();
+		          //Starting from 23rd pos, read number to an array
+		          int thisScore = 0;
+		          for(int i = 29; i < data.length(); i++) {
+		        	  thisScore*=10;
+		        	  thisScore+=Character.getNumericValue(data.charAt(i));
+		          }
+		          //------------------
+		          if(thisScore <= score && !inserted) {
+		        	  sc[n] = score;
+		        	  sc[n+1] = thisScore;
+		        	  n++;
+		        	  inserted = true;
+		          }
+		          else sc[n] = thisScore;
+		          System.out.println(data);
+		          n++;
+		        }
+		        if(n == 0) {
+		        	sc[n] = score;
+		        	n++;
+		        }
+		        myReader.close();
 	        }
-	        else {
-	        	myWriter.write(dtf.format(now) + "   Score: " + score + "\n");
-	        }
+	        else System.out.println("Scores file doesn`t exists yet.");
             //Re-create it
-	        myWriter.close();
-	        System.out.println("Deleting scores.txt...\n");
+	        System.out.println("Deleting scores.txt and re-creating it...\n");
 	        if(scores.exists()) scores.delete();
-	        System.out.println("Renaming temp_scores.txt -> scores.txt...\n");
-        	scores2.renameTo(scores);
-        	 System.out.println("Done.\n");
+	        if (scores.createNewFile()) {
+	            System.out.println("Scores: File created: " + scores.getName());
+	          } else {
+	            System.out.println("Scores: File already exists.");
+	          }
+	        FileWriter myWriter = new FileWriter(scores.getAbsolutePath()); 
+	        for(int i = 0; i < n; i++) {
+	        	myWriter.write(dtf.format(now) + "   Score: " + sc[i] + "\n");
+	        }
+	        myWriter.close();
+            System.out.println("Done.\n");
 	         
 	    } catch (IOException e) {
 	          System.out.println("Scores: An error occurred.");
